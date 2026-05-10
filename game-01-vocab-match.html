@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>遊戲 1 — 9 詞配對</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  background: #FFFDFC;
+  color: #1F2933;
+  min-height: 100vh;
+  padding: 16px;
+  font-size: 16px;
+}
+.container { max-width: 960px; margin: 0 auto; }
+header {
+  background: #22344A;
+  color: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+header h1 { font-size: 22px; margin-bottom: 6px; }
+header .subtitle { color: #F5EEE6; font-size: 13px; }
+.nav-link {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #3A7D7C;
+  text-decoration: none;
+  font-size: 14px;
+}
+.nav-link:hover { text-decoration: underline; }
+.score-bar {
+  background: #F5EEE6;
+  padding: 10px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  font-weight: bold;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.score-bar .right { color: #3A7D7C; }
+.column-header {
+  font-size: 13px;
+  font-weight: bold;
+  color: #3A7D7C;
+  text-align: center;
+  padding: 8px;
+  background: #E7F3F1;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.game-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.card {
+  background: white;
+  border: 2px solid #D9E1E8;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  word-break: keep-all;
+  user-select: none;
+  line-height: 1.4;
+}
+.card:hover { border-color: #3A7D7C; background: #FAFCFB; }
+.card.selected {
+  background: #FCEDE5;
+  border-color: #D96A3B;
+  box-shadow: 0 0 0 3px rgba(217, 106, 59, 0.2);
+}
+.card.matched {
+  background: #E8F1EA;
+  border-color: #4A7C59;
+  color: #4A7C59;
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.85;
+}
+.card.matched::before { content: '✅ '; }
+.card.wrong {
+  animation: shake 0.4s;
+  background: #FBEBE7;
+  border-color: #C8553D;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+.term-card { font-weight: bold; flex-direction: column; align-items: flex-start; }
+.term-card .pinyin {
+  display: block;
+  font-size: 11px;
+  color: #5B6777;
+  font-weight: normal;
+  margin-top: 4px;
+  font-style: italic;
+}
+.term-card.matched .pinyin { color: #4A7C59; }
+.btn {
+  background: #D96A3B;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-block;
+  font-family: inherit;
+  min-height: 44px;
+}
+.btn:hover { background: #B85530; }
+.btn-secondary {
+  background: #5B6777;
+}
+.btn-secondary:hover { background: #455260; }
+.controls { text-align: center; margin: 16px 0; }
+.complete-message {
+  background: #4A7C59;
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
+  margin: 20px 0;
+  text-align: center;
+  font-size: 17px;
+  display: none;
+}
+.complete-message h2 { margin-bottom: 12px; font-size: 22px; }
+.qr-section {
+  background: #F5EEE6;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+  text-align: center;
+}
+.qr-section img { display: block; margin: 0 auto 8px; }
+.qr-section p { font-size: 13px; color: #5B6777; }
+.example-popup {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #22344A;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 10px;
+  max-width: 90%;
+  z-index: 100;
+  display: none;
+  font-size: 15px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.example-popup strong { color: #F5EEE6; }
+@media (max-width: 480px) {
+  .game-area { grid-template-columns: 1fr; }
+  .card { font-size: 14px; min-height: 50px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="nav-link">← 回主頁</a>
+  <header>
+    <h1>🎯 遊戲 1：9 詞配對</h1>
+    <div class="subtitle">點左邊一個詞 → 點右邊正確的解釋。配對成功會變綠色。</div>
+  </header>
+
+  <div class="score-bar">
+    <span>進度：<span id="progress">0</span> / 9</span>
+    <span class="right">嘗試次數：<span id="attempts">0</span></span>
+  </div>
+
+  <div id="completeMessage" class="complete-message">
+    <h2>🎉 全部配對完成！</h2>
+    <div>你花了 <span id="finalAttempts">0</span> 次嘗試，配對 9 個關鍵詞。</div>
+    <br>
+    <button class="btn" onclick="restart()">再玩一次</button>
+  </div>
+
+  <div class="game-area">
+    <div>
+      <div class="column-header">📖 詞語</div>
+      <div id="termsCol"></div>
+    </div>
+    <div>
+      <div class="column-header">💡 解釋</div>
+      <div id="defsCol"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-secondary" onclick="restart()">🔄 重新開始</button>
+  </div>
+
+  <div class="qr-section">
+    <img id="qr-img" width="150" height="150" alt="QR Code" style="display:none;">
+    <p id="qr-hint">📱 部署上線後可掃 QR 玩遊戲</p>
+  </div>
+</div>
+
+<div id="examplePopup" class="example-popup"></div>
+
+<script>
+const VOCAB = [
+  { term: 'GLP-1', pinyin: 'jí ài pī yī', def: '腸道分泌的食慾調節荷爾蒙', example: 'GLP-1 讓人比較不想吃東西。' },
+  { term: '腸泌素', pinyin: 'cháng mì sù', def: '從腸道分泌的訊息物質', example: '腸泌素會告訴大腦：飽了。' },
+  { term: '胰島素', pinyin: 'yí dǎo sù', def: '讓血糖下降的荷爾蒙', example: '糖尿病人需要打胰島素。' },
+  { term: '營養密度', pinyin: 'yíngyǎng mìdù', def: '每口食物裡的營養多不多', example: '雞蛋的營養密度很高。' },
+  { term: '乳清蛋白', pinyin: 'rǔqīng dànbái', def: '牛奶做的高品質蛋白', example: '健身的人愛喝乳清蛋白。' },
+  { term: '膳食纖維', pinyin: 'shànshí xiānwéi', def: '蔬菜裡幫助消化的成分', example: '多吃蔬菜可以補充膳食纖維。' },
+  { term: '電解質', pinyin: 'diànjiězhì', def: '鈉、鉀、鎂等礦物質', example: '流汗後要補充電解質。' },
+  { term: '結構性改變', pinyin: 'jiégòuxìng gǎibiàn', def: '整個系統的長期改變', example: '這不是流行，是結構性改變。' },
+  { term: '品牌卡位', pinyin: 'pǐnpái kǎwèi', def: '公司搶先佔市場位置', example: '雀巢正在做品牌卡位。' },
+];
+
+let selectedTerm = null;
+let selectedDef = null;
+let matched = new Set();
+let attempts = 0;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function render() {
+  const termsCol = document.getElementById('termsCol');
+  const defsCol = document.getElementById('defsCol');
+  termsCol.innerHTML = '';
+  defsCol.innerHTML = '';
+  VOCAB.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'card term-card';
+    card.dataset.id = i;
+    card.innerHTML = `<span>${v.term}</span><span class="pinyin">${v.pinyin}</span>`;
+    if (matched.has(i)) card.classList.add('matched');
+    card.addEventListener('click', () => onTermClick(i, card));
+    termsCol.appendChild(card);
+  });
+  const shuffled = shuffle(VOCAB.map((v, i) => ({ ...v, originalId: i })));
+  shuffled.forEach((v) => {
+    const card = document.createElement('div');
+    card.className = 'card def-card';
+    card.dataset.id = v.originalId;
+    card.textContent = v.def;
+    if (matched.has(v.originalId)) card.classList.add('matched');
+    card.addEventListener('click', () => onDefClick(v.originalId, card));
+    defsCol.appendChild(card);
+  });
+}
+
+function onTermClick(id, el) {
+  if (matched.has(id)) return;
+  document.querySelectorAll('.term-card.selected').forEach(c => c.classList.remove('selected'));
+  selectedTerm = { id, el };
+  el.classList.add('selected');
+  tryMatch();
+}
+
+function onDefClick(id, el) {
+  if (matched.has(id)) return;
+  document.querySelectorAll('.def-card.selected').forEach(c => c.classList.remove('selected'));
+  selectedDef = { id, el };
+  el.classList.add('selected');
+  tryMatch();
+}
+
+function tryMatch() {
+  if (!selectedTerm || !selectedDef) return;
+  attempts++;
+  document.getElementById('attempts').textContent = attempts;
+  if (selectedTerm.id === selectedDef.id) {
+    selectedTerm.el.classList.add('matched');
+    selectedDef.el.classList.add('matched');
+    selectedTerm.el.classList.remove('selected');
+    selectedDef.el.classList.remove('selected');
+    matched.add(selectedTerm.id);
+    document.getElementById('progress').textContent = matched.size;
+    showExample(VOCAB[selectedTerm.id]);
+    if (matched.size === VOCAB.length) {
+      setTimeout(showComplete, 1200);
+    }
+  } else {
+    const a = selectedTerm.el;
+    const b = selectedDef.el;
+    a.classList.add('wrong');
+    b.classList.add('wrong');
+    setTimeout(() => {
+      a.classList.remove('wrong', 'selected');
+      b.classList.remove('wrong', 'selected');
+    }, 500);
+  }
+  selectedTerm = null;
+  selectedDef = null;
+}
+
+function showExample(v) {
+  const popup = document.getElementById('examplePopup');
+  popup.innerHTML = `✅ <strong>${v.term}</strong> — ${v.example}`;
+  popup.style.display = 'block';
+  setTimeout(() => { popup.style.display = 'none'; }, 2200);
+}
+
+function showComplete() {
+  document.getElementById('finalAttempts').textContent = attempts;
+  document.getElementById('completeMessage').style.display = 'block';
+  document.getElementById('completeMessage').scrollIntoView({ behavior: 'smooth' });
+}
+
+function restart() {
+  selectedTerm = null;
+  selectedDef = null;
+  matched = new Set();
+  attempts = 0;
+  document.getElementById('progress').textContent = '0';
+  document.getElementById('attempts').textContent = '0';
+  document.getElementById('completeMessage').style.display = 'none';
+  render();
+}
+
+(function() {
+  const url = window.location.href;
+  if (!url.startsWith('file://')) {
+    const img = document.getElementById('qr-img');
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
+    img.style.display = 'block';
+    document.getElementById('qr-hint').textContent = '📱 掃描開啟此遊戲';
+  }
+})();
+
+render();
+</script>
+</body>
+</html>

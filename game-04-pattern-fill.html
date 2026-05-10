@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>遊戲 4 — 句型填空</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  background: #FFFDFC;
+  color: #1F2933;
+  min-height: 100vh;
+  padding: 16px;
+  font-size: 16px;
+}
+.container { max-width: 720px; margin: 0 auto; }
+header {
+  background: #22344A;
+  color: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+header h1 { font-size: 22px; margin-bottom: 6px; }
+header .subtitle { color: #F5EEE6; font-size: 13px; }
+.nav-link {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #3A7D7C;
+  text-decoration: none;
+  font-size: 14px;
+}
+.nav-link:hover { text-decoration: underline; }
+.score-bar {
+  background: #F5EEE6;
+  padding: 10px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+.progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: #D9E1E8;
+  border-radius: 4px;
+  margin: 0 16px;
+  overflow: hidden;
+  align-self: center;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: #4A7C59;
+  width: 0%;
+  transition: width 0.3s;
+}
+.pattern-tag {
+  display: inline-block;
+  background: #ECF3FA;
+  color: #22344A;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.question-card {
+  background: white;
+  border: 1px solid #D9E1E8;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.q-num {
+  display: inline-block;
+  background: #D96A3B;
+  color: white;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.sentence {
+  font-size: 18px;
+  line-height: 1.9;
+  margin: 16px 0;
+  color: #1F2933;
+}
+.blank {
+  display: inline-block;
+  min-width: 80px;
+  padding: 4px 12px;
+  margin: 0 4px;
+  background: #F5EEE6;
+  border-bottom: 2px dashed #D96A3B;
+  border-radius: 6px 6px 0 0;
+  font-weight: bold;
+  text-align: center;
+  color: #D96A3B;
+}
+.blank.filled { background: #FCEDE5; color: #1F2933; }
+.blank.correct {
+  background: #E8F1EA;
+  border-bottom-color: #4A7C59;
+  color: #4A7C59;
+}
+.blank.wrong {
+  background: #FBEBE7;
+  border-bottom-color: #C8553D;
+  color: #C8553D;
+}
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.option-chip {
+  background: #ECF3FA;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: bold;
+  color: #22344A;
+  min-height: 40px;
+}
+.option-chip:hover { background: #D9E8F4; border-color: #3A7D7C; }
+.option-chip:disabled { opacity: 0.4; cursor: not-allowed; }
+.explain {
+  background: #F6F1DE;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #22344A;
+  line-height: 1.5;
+  display: none;
+}
+.explain.show { display: block; }
+.btn {
+  background: #D96A3B;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  min-height: 44px;
+}
+.btn:hover { background: #B85530; }
+.btn-secondary { background: #5B6777; }
+.btn-secondary:hover { background: #455260; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.controls { text-align: center; margin: 16px 0; }
+.complete-message {
+  background: #4A7C59;
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
+  margin: 20px 0;
+  text-align: center;
+  display: none;
+}
+.complete-message h2 { font-size: 22px; margin-bottom: 12px; }
+.complete-message .score { font-size: 32px; font-weight: bold; margin: 12px 0; }
+.qr-section {
+  background: #F5EEE6;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+  text-align: center;
+}
+.qr-section img { display: block; margin: 0 auto 8px; }
+.qr-section p { font-size: 13px; color: #5B6777; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="nav-link">← 回主頁</a>
+  <header>
+    <h1>✍️ 遊戲 4：句型填空</h1>
+    <div class="subtitle">點下方的詞，把它放進句子的空格裡。練三個句型。</div>
+  </header>
+
+  <div class="score-bar">
+    <span>第 <span id="curQ">1</span> / <span id="totalQ">6</span> 題</span>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <span style="color:#3A7D7C">答對 <span id="score">0</span></span>
+  </div>
+
+  <div id="quizArea"></div>
+
+  <div id="completeMessage" class="complete-message">
+    <h2>🎉 完成！</h2>
+    <div>你的分數</div>
+    <div class="score"><span id="finalScore">0</span> / 6</div>
+    <div id="finalComment"></div>
+    <br>
+    <button class="btn" onclick="restart()">再玩一次</button>
+  </div>
+
+  <div class="qr-section">
+    <img id="qr-img" width="150" height="150" alt="QR Code" style="display:none;">
+    <p id="qr-hint">📱 部署上線後可掃 QR 玩遊戲</p>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    pattern: '不只…還…',
+    parts: ['瘦瘦針改變的', null, '是體重，', null, '重塑了食品市場。'],
+    blanks: ['不只', '還'],
+    options: ['不只', '還', '只是', '所以'],
+    explain: '「不只 X 還 Y」用來表達「除了 X 還包括 Y」的意思，強調多面影響。'
+  },
+  {
+    pattern: '不只…還…',
+    parts: ['AI 改變的', null, '是工作，', null, '改變了學習方式。'],
+    blanks: ['不只', '還'],
+    options: ['不只', '還', '雖然', '但是'],
+    explain: '記住兩個位置：第一空填「不只」，第二空填「還」。'
+  },
+  {
+    pattern: '從 X 轉向 Y',
+    parts: ['食品設計', null, '高份量、高刺激', null, '小份量、高營養密度。'],
+    blanks: ['從', '轉向'],
+    options: ['從', '轉向', '對於', '改成'],
+    explain: '「從 X 轉向 Y」表達一個明顯的方向變化，常用在描寫趨勢、產業變遷。'
+  },
+  {
+    pattern: '從 X 轉向 Y',
+    parts: ['消費邏輯', null, '「吃飽」', null, '「吃精」。'],
+    blanks: ['從', '轉向'],
+    options: ['從', '轉向', '把', '變了'],
+    explain: '搭配「轉向」一定有「從」，兩個位置一起記。'
+  },
+  {
+    pattern: '約 X 的 Y',
+    parts: [null, '四分之一', null, '使用者停止飲酒。'],
+    blanks: ['約', '的'],
+    options: ['約', '的', '是', '又'],
+    explain: '「約 X 的 Y」用百分比或分數說明比例：「約 + 數字 + 的 + 名詞」。'
+  },
+  {
+    pattern: '約 X 的 Y',
+    parts: [null, '三成', null, '學生選素食。'],
+    blanks: ['約', '的'],
+    options: ['約', '的', '都', '才'],
+    explain: '記住：「約 + 比例（三成 / 1/4 / 70%）+ 的 + 對象」。'
+  },
+];
+
+let curIdx = 0;
+let score = 0;
+let userAnswers = [];
+
+function renderQuestion() {
+  const q = QUESTIONS[curIdx];
+  userAnswers = new Array(q.blanks.length).fill(null);
+  const sentenceHtml = q.parts.map((p, i) => {
+    if (p === null) {
+      const blankIdx = q.parts.slice(0, i).filter(x => x === null).length;
+      return `<span class="blank" data-blank="${blankIdx}" id="blank-${blankIdx}">＿＿＿</span>`;
+    }
+    return p;
+  }).join('');
+
+  const shuffledOpts = shuffle(q.options.map((opt, i) => ({ text: opt, id: i })));
+
+  const area = document.getElementById('quizArea');
+  area.innerHTML = `
+    <div class="question-card">
+      <span class="q-num">第 ${curIdx + 1} 題</span>
+      <span class="pattern-tag">句型：${q.pattern}</span>
+      <div class="sentence">${sentenceHtml}</div>
+      <div style="font-size:13px; color:#5B6777; margin-bottom:8px;">點下方詞語填入空格。再點一次空格可清除。</div>
+      <div class="options" id="optionsBox">
+        ${shuffledOpts.map(o => `<button class="option-chip" data-text="${o.text}" onclick="pickOption('${o.text}', this)">${o.text}</button>`).join('')}
+      </div>
+      <div id="explainBox" class="explain"></div>
+      <div class="controls">
+        <button class="btn" id="checkBtn" onclick="checkQuestion()" disabled>對答案</button>
+        <button class="btn btn-secondary" id="nextBtn" onclick="next()" style="display:none;">${curIdx === QUESTIONS.length - 1 ? '查看結果 →' : '下一題 →'}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('curQ').textContent = curIdx + 1;
+  document.getElementById('totalQ').textContent = QUESTIONS.length;
+  document.getElementById('progressFill').style.width = `${(curIdx / QUESTIONS.length) * 100}%`;
+
+  document.querySelectorAll('.blank').forEach(b => {
+    b.onclick = () => clearBlank(parseInt(b.dataset.blank));
+  });
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickOption(text, el) {
+  const emptyIdx = userAnswers.findIndex(a => a === null);
+  if (emptyIdx === -1) return;
+  userAnswers[emptyIdx] = text;
+  const blank = document.getElementById('blank-' + emptyIdx);
+  blank.textContent = text;
+  blank.classList.add('filled');
+  el.disabled = true;
+  el.dataset.usedFor = emptyIdx;
+  if (userAnswers.every(a => a !== null)) {
+    document.getElementById('checkBtn').disabled = false;
+  }
+}
+
+function clearBlank(idx) {
+  if (userAnswers[idx] === null) return;
+  const text = userAnswers[idx];
+  userAnswers[idx] = null;
+  const blank = document.getElementById('blank-' + idx);
+  blank.textContent = '＿＿＿';
+  blank.classList.remove('filled');
+  document.querySelectorAll('.option-chip').forEach(o => {
+    if (o.dataset.text === text && o.dataset.usedFor === String(idx)) {
+      o.disabled = false;
+      delete o.dataset.usedFor;
+    }
+  });
+  document.getElementById('checkBtn').disabled = true;
+}
+
+function checkQuestion() {
+  const q = QUESTIONS[curIdx];
+  let allCorrect = true;
+  q.blanks.forEach((correctAns, i) => {
+    const blank = document.getElementById('blank-' + i);
+    if (userAnswers[i] === correctAns) {
+      blank.classList.add('correct');
+    } else {
+      blank.classList.add('wrong');
+      blank.textContent = userAnswers[i] + ' → ' + correctAns;
+      allCorrect = false;
+    }
+  });
+  if (allCorrect) {
+    score++;
+    document.getElementById('score').textContent = score;
+  }
+  document.querySelectorAll('.option-chip').forEach(o => o.disabled = true);
+  const ex = document.getElementById('explainBox');
+  ex.innerHTML = '💡 ' + q.explain;
+  ex.classList.add('show');
+  document.getElementById('checkBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function next() {
+  if (curIdx < QUESTIONS.length - 1) {
+    curIdx++;
+    renderQuestion();
+  } else {
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('quizArea').innerHTML = '';
+    document.getElementById('finalScore').textContent = score;
+    let comment = '';
+    if (score === 6) comment = '完美！三個句型都會用。';
+    else if (score >= 4) comment = '不錯！把答錯的句型再念三次。';
+    else comment = '回去看 Slide 15-16 的句型卡，再玩一次。';
+    document.getElementById('finalComment').textContent = comment;
+    document.getElementById('completeMessage').style.display = 'block';
+    document.getElementById('completeMessage').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function restart() {
+  curIdx = 0;
+  score = 0;
+  document.getElementById('score').textContent = '0';
+  document.getElementById('completeMessage').style.display = 'none';
+  renderQuestion();
+}
+
+(function() {
+  const url = window.location.href;
+  if (!url.startsWith('file://')) {
+    const img = document.getElementById('qr-img');
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
+    img.style.display = 'block';
+    document.getElementById('qr-hint').textContent = '📱 掃描開啟此遊戲';
+  }
+})();
+
+renderQuestion();
+</script>
+</body>
+</html>

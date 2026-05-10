@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>遊戲 2 — 三大數據判讀</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  background: #FFFDFC;
+  color: #1F2933;
+  min-height: 100vh;
+  padding: 16px;
+  font-size: 16px;
+}
+.container { max-width: 720px; margin: 0 auto; }
+header {
+  background: #22344A;
+  color: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+header h1 { font-size: 22px; margin-bottom: 6px; }
+header .subtitle { color: #F5EEE6; font-size: 13px; }
+.nav-link {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #3A7D7C;
+  text-decoration: none;
+  font-size: 14px;
+}
+.nav-link:hover { text-decoration: underline; }
+.score-bar {
+  background: #F5EEE6;
+  padding: 10px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+.progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: #D9E1E8;
+  border-radius: 4px;
+  margin: 0 16px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: #4A7C59;
+  width: 0%;
+  transition: width 0.3s;
+}
+.question-card {
+  background: white;
+  border: 1px solid #D9E1E8;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.q-num {
+  display: inline-block;
+  background: #D96A3B;
+  color: white;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.q-text {
+  font-size: 17px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.options {
+  display: grid;
+  gap: 8px;
+}
+.option {
+  background: #F5EEE6;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 15px;
+  font-family: inherit;
+  text-align: left;
+  min-height: 44px;
+  width: 100%;
+  color: #1F2933;
+}
+.option:hover { background: #FCEDE5; border-color: #D96A3B; }
+.option.correct {
+  background: #E8F1EA;
+  border-color: #4A7C59;
+  color: #4A7C59;
+  font-weight: bold;
+}
+.option.wrong {
+  background: #FBEBE7;
+  border-color: #C8553D;
+  color: #C8553D;
+}
+.option:disabled { cursor: default; }
+.option.correct::before { content: '✅ '; }
+.option.wrong::before { content: '❌ '; }
+.explain {
+  background: #ECF3FA;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #22344A;
+  line-height: 1.5;
+  display: none;
+}
+.explain.show { display: block; }
+.btn {
+  background: #D96A3B;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  min-height: 44px;
+}
+.btn:hover { background: #B85530; }
+.btn-secondary { background: #5B6777; }
+.btn-secondary:hover { background: #455260; }
+.controls { text-align: center; margin: 20px 0; }
+.complete-message {
+  background: #4A7C59;
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
+  margin: 20px 0;
+  text-align: center;
+  display: none;
+}
+.complete-message h2 { font-size: 22px; margin-bottom: 12px; }
+.complete-message .score { font-size: 32px; font-weight: bold; margin: 12px 0; }
+.qr-section {
+  background: #F5EEE6;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+  text-align: center;
+}
+.qr-section img { display: block; margin: 0 auto 8px; }
+.qr-section p { font-size: 13px; color: #5B6777; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="nav-link">← 回主頁</a>
+  <header>
+    <h1>📊 遊戲 2：三大數據判讀</h1>
+    <div class="subtitle">6 題選擇題。讀懂百分比、分數，把數字變成自己的話。</div>
+  </header>
+
+  <div class="score-bar">
+    <span>第 <span id="curQ">1</span> / <span id="totalQ">6</span> 題</span>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <span style="color:#3A7D7C">答對 <span id="score">0</span></span>
+  </div>
+
+  <div id="quizArea"></div>
+
+  <div id="completeMessage" class="complete-message">
+    <h2>🎉 完成！</h2>
+    <div>你的分數</div>
+    <div class="score"><span id="finalScore">0</span> / 6</div>
+    <div id="finalComment"></div>
+    <br>
+    <button class="btn" onclick="restart()">再玩一次</button>
+  </div>
+
+  <div class="qr-section">
+    <img id="qr-img" width="150" height="150" alt="QR Code" style="display:none;">
+    <p id="qr-hint">📱 部署上線後可掃 QR 玩遊戲</p>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: '根據文章，含糖飲料的購買量大約下降了多少？',
+    options: ['約 −3%（百分之三）', '約 −7%（百分之七）', '約 −15%（百分之十五）', '約 −30%（百分之三十）'],
+    correct: 1,
+    explain: '含糖飲料購買量下降約 −7%。GLP-1 讓使用者對含糖、高刺激飲料的興趣下降。'
+  },
+  {
+    q: 'Morgan Stanley 調查指出，大約多少 GLP-1 使用者停止飲酒？',
+    options: ['1/10（十分之一）', '1/4（四分之一）', '1/2（一半）', '3/4（四分之三）'],
+    correct: 1,
+    explain: '約 1/4（四分之一）的 GLP-1 使用者停止飲酒，對酒精產業是顯著衝擊。'
+  },
+  {
+    q: '相關產品市場 2025–2035 的年複合成長率（CAGR）大約是？',
+    options: ['約 5%（百分之五）', '約 12.2%（百分之十二點二）', '約 25%（百分之二十五）', '約 50%（百分之五十）'],
+    correct: 1,
+    explain: 'Future Market Insights 預測 CAGR 約 12.2%，代表這是長期成長市場。'
+  },
+  {
+    q: '哪一個產業最可能因 GLP-1 流行而【受惠】？',
+    options: ['含糖汽水公司', '速食連鎖店', '蛋白棒與優格廠', '糕點烘焙廠'],
+    correct: 2,
+    explain: '蛋白棒與優格廠提供「小份量、高營養密度」產品，正符合 GLP-1 使用者需求。'
+  },
+  {
+    q: '「品牌卡位」的意思是？',
+    options: ['搶先佔住市場位置', '臨時改包裝', '快速降價', '退出市場'],
+    correct: 0,
+    explain: '品牌卡位指公司搶先佔據市場位置，例如雀巢、通用磨坊推出 GLP-1 友善產品。'
+  },
+  {
+    q: '文章說 GLP-1 帶來的是「結構性改變」，意思最接近？',
+    options: ['只是流行一陣子', '整個系統的長期改變', '只影響特定國家', '只跟肥胖有關'],
+    correct: 1,
+    explain: '結構性改變指整個食品系統的長期、深層改變，不是短期流行。'
+  },
+];
+
+let curIdx = 0;
+let score = 0;
+let answered = false;
+
+function renderQuestion() {
+  const q = QUESTIONS[curIdx];
+  const area = document.getElementById('quizArea');
+  area.innerHTML = `
+    <div class="question-card">
+      <span class="q-num">第 ${curIdx + 1} 題</span>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="optionsBox">
+        ${q.options.map((opt, i) => `<button class="option" data-i="${i}" onclick="pick(${i})">${opt}</button>`).join('')}
+      </div>
+      <div id="explainBox" class="explain"></div>
+      <div class="controls" id="nextBox" style="display:none;">
+        <button class="btn" onclick="next()">${curIdx === QUESTIONS.length - 1 ? '查看結果 →' : '下一題 →'}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('curQ').textContent = curIdx + 1;
+  document.getElementById('totalQ').textContent = QUESTIONS.length;
+  document.getElementById('progressFill').style.width = `${(curIdx / QUESTIONS.length) * 100}%`;
+  answered = false;
+}
+
+function pick(i) {
+  if (answered) return;
+  answered = true;
+  const q = QUESTIONS[curIdx];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => o.disabled = true);
+  if (i === q.correct) {
+    opts[i].classList.add('correct');
+    score++;
+    document.getElementById('score').textContent = score;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+  }
+  const ex = document.getElementById('explainBox');
+  ex.textContent = '💡 ' + q.explain;
+  ex.classList.add('show');
+  document.getElementById('nextBox').style.display = 'block';
+}
+
+function next() {
+  if (curIdx < QUESTIONS.length - 1) {
+    curIdx++;
+    renderQuestion();
+  } else {
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('quizArea').innerHTML = '';
+    document.getElementById('finalScore').textContent = score;
+    let comment = '';
+    if (score === 6) comment = '太強了！全對！👏';
+    else if (score >= 4) comment = '不錯，再回去聽一次音訊就更穩了！';
+    else comment = '別擔心，重新讀文章再玩一次。';
+    document.getElementById('finalComment').textContent = comment;
+    document.getElementById('completeMessage').style.display = 'block';
+    document.getElementById('completeMessage').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function restart() {
+  curIdx = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('score').textContent = '0';
+  document.getElementById('completeMessage').style.display = 'none';
+  renderQuestion();
+}
+
+(function() {
+  const url = window.location.href;
+  if (!url.startsWith('file://')) {
+    const img = document.getElementById('qr-img');
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
+    img.style.display = 'block';
+    document.getElementById('qr-hint').textContent = '📱 掃描開啟此遊戲';
+  }
+})();
+
+renderQuestion();
+</script>
+</body>
+</html>

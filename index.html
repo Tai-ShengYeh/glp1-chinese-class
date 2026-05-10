@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLP-1 課堂互動小遊戲｜食品營養華語</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  background: #FFFDFC;
+  color: #1F2933;
+  min-height: 100vh;
+  padding: 16px;
+  font-size: 16px;
+}
+.container { max-width: 960px; margin: 0 auto; }
+header {
+  background: linear-gradient(135deg, #22344A 0%, #3A7D7C 100%);
+  color: white;
+  padding: 28px 24px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+header h1 { font-size: 26px; margin-bottom: 8px; }
+header .subtitle { color: #F5EEE6; font-size: 15px; line-height: 1.5; }
+header .meta {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #E7F3F1;
+}
+.intro {
+  background: #F6F1DE;
+  padding: 16px 20px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #22344A;
+  line-height: 1.6;
+}
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.game-card {
+  background: white;
+  border: 1px solid #D9E1E8;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.game-card:hover {
+  transform: translateY(-3px);
+  border-color: #D96A3B;
+  box-shadow: 0 6px 20px rgba(217, 106, 59, 0.12);
+}
+.game-card .header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.game-card .icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.icon-1 { background: #FCEDE5; }
+.icon-2 { background: #ECF3FA; }
+.icon-3 { background: #E8F1EA; }
+.icon-4 { background: #F2EAF5; }
+.game-card h2 { font-size: 19px; margin-bottom: 4px; }
+.game-card .subtitle {
+  font-size: 13px;
+  color: #5B6777;
+}
+.game-card .desc {
+  font-size: 14px;
+  color: #1F2933;
+  line-height: 1.6;
+  margin: 12px 0;
+  flex: 1;
+}
+.game-card .meta-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: #F5EEE6;
+  color: #5B6777;
+}
+.tag.slide { background: #E7F3F1; color: #3A7D7C; }
+.tag.time { background: #FCEDE5; color: #D96A3B; }
+.game-card .play-btn {
+  background: #D96A3B;
+  color: white;
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 15px;
+}
+.qr-section-grid {
+  background: #F5EEE6;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.qr-section-grid h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #22344A;
+}
+.qr-section-grid > p {
+  font-size: 13px;
+  color: #5B6777;
+  margin-bottom: 16px;
+}
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+.qr-cell {
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+}
+.qr-cell img {
+  width: 130px;
+  height: 130px;
+  display: block;
+  margin: 0 auto 8px;
+}
+.qr-cell .qr-label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #22344A;
+}
+.qr-cell .qr-hint {
+  font-size: 11px;
+  color: #5B6777;
+}
+.classroom-tips {
+  background: white;
+  border: 1px solid #D9E1E8;
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+}
+.classroom-tips h2 {
+  font-size: 17px;
+  margin-bottom: 10px;
+  color: #3A7D7C;
+}
+.classroom-tips ul { padding-left: 20px; font-size: 14px; line-height: 1.8; color: #1F2933; }
+footer {
+  text-align: center;
+  font-size: 12px;
+  color: #5B6777;
+  padding: 16px;
+}
+.local-warning {
+  background: #FBEBE7;
+  color: #C8553D;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  display: none;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🎮 GLP-1 課堂互動小遊戲</h1>
+    <div class="subtitle">食品營養華語文獻閱讀 ｜ 對應 PPT 第 5、13、14、15-16 張</div>
+    <div class="meta">A2–B1 級 ｜ 改編自 foodNEXT 食力 2026/01/30</div>
+  </header>
+
+  <div id="localWarning" class="local-warning">
+    ⚠️ 您現在開的是本機檔案（file://）。要讓學生用手機掃 QR Code 進入，請把整個 games 資料夾發布到 GitHub Pages 或其他網頁伺服器。
+  </div>
+
+  <div class="intro">
+    💡 <strong>使用方式</strong>：上課時投影本頁，學生掃 QR 進入對應遊戲即可開始玩。
+    每個遊戲建議玩 3–5 分鐘，做為教學節點之間的形成性評量。
+  </div>
+
+  <div class="games-grid">
+    <a class="game-card" href="game-01-vocab-match.html">
+      <div class="header-row">
+        <div class="icon icon-1">🎯</div>
+        <div>
+          <h2>遊戲 1：9 詞配對</h2>
+          <div class="subtitle">配對題（Matching Pairs）</div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span class="tag slide">PPT Slide 5</span>
+        <span class="tag time">3-5 分鐘</span>
+        <span class="tag">9 題</span>
+      </div>
+      <div class="desc">
+        把 9 個關鍵詞配對到正確的解釋。配對成功會自動顯示例句。
+        本週重點詞彙：GLP-1、腸泌素、胰島素、營養密度、乳清蛋白、膳食纖維、電解質、結構性改變、品牌卡位。
+      </div>
+      <div class="play-btn">▶ 開始遊戲</div>
+    </a>
+
+    <a class="game-card" href="game-02-data-mcq.html">
+      <div class="header-row">
+        <div class="icon icon-2">📊</div>
+        <div>
+          <h2>遊戲 2：三大數據判讀</h2>
+          <div class="subtitle">選擇題（MCQ）</div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span class="tag slide">PPT Slide 13</span>
+        <span class="tag time">3-5 分鐘</span>
+        <span class="tag">6 題</span>
+      </div>
+      <div class="desc">
+        練習讀懂 −7%、1/4、12.2% 三筆關鍵數據，並理解「品牌卡位」「結構性改變」的詞義。
+        每題答完顯示說明。
+      </div>
+      <div class="play-btn">▶ 開始遊戲</div>
+    </a>
+
+    <a class="game-card" href="game-03-industry-sort.html">
+      <div class="header-row">
+        <div class="icon icon-3">🏭</div>
+        <div>
+          <h2>遊戲 3：受惠 vs 受壓</h2>
+          <div class="subtitle">分類題（Sort）</div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span class="tag slide">PPT Slide 14</span>
+        <span class="tag time">3-5 分鐘</span>
+        <span class="tag">8 項</span>
+      </div>
+      <div class="desc">
+        把 8 個產業／品牌分到「受惠」或「受壓」兩類。包括雀巢、通用磨坊、含糖汽水、酒精等。
+        對完答案會顯示每個產業的判斷理由。
+      </div>
+      <div class="play-btn">▶ 開始遊戲</div>
+    </a>
+
+    <a class="game-card" href="game-04-pattern-fill.html">
+      <div class="header-row">
+        <div class="icon icon-4">✍️</div>
+        <div>
+          <h2>遊戲 4：句型填空</h2>
+          <div class="subtitle">填空題（Fill-in-Blank）</div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span class="tag slide">PPT Slide 15-16</span>
+        <span class="tag time">5-7 分鐘</span>
+        <span class="tag">6 題</span>
+      </div>
+      <div class="desc">
+        練三個寫作高頻句型：① 不只…還… ② 從 X 轉向 Y ③ 約 X 的 Y。
+        點選正確的詞放進空格。完成後可直接用在 Edcafe 寫作任務。
+      </div>
+      <div class="play-btn">▶ 開始遊戲</div>
+    </a>
+  </div>
+
+  <div class="qr-section-grid" id="qrSection">
+    <h2>📱 課堂用 QR Codes</h2>
+    <p>投影本頁時，學生可直接掃下面 4 個 QR Code 進入遊戲。</p>
+    <div class="qr-grid" id="qrGrid"></div>
+  </div>
+
+  <div class="classroom-tips">
+    <h2>👨‍🏫 給老師的課堂節奏建議</h2>
+    <ul>
+      <li><strong>0:18-0:25</strong>（PPT Slide 5）— 玩遊戲 1，全班 5 分鐘配對 9 詞。</li>
+      <li><strong>1:08-1:15</strong>（PPT Slide 13）— 玩遊戲 2，個人答數據判讀題。</li>
+      <li><strong>1:15-1:20</strong>（PPT Slide 14）— 玩遊戲 3，分組討論受惠 vs 受壓。</li>
+      <li><strong>1:25-1:32</strong>（PPT Slide 15-16）— 玩遊戲 4，作為寫作前的句型暖身。</li>
+      <li><strong>分組策略</strong>：4 人一組共玩同一題，討論後再選答案，提升口語產出。</li>
+    </ul>
+  </div>
+
+  <footer>
+    課堂材料改編自 foodNEXT 食力 2026/01/30《瘦瘦針改變的不只是體重 GLP-1 如何重塑食品與飲料市場？》
+    <br>
+    搭配 NotebookLM 11 分鐘預習音訊與 20 張投影片使用。
+  </footer>
+</div>
+
+<script>
+const GAMES = [
+  { file: 'game-01-vocab-match.html', label: '遊戲 1：9 詞配對' },
+  { file: 'game-02-data-mcq.html', label: '遊戲 2：數據判讀' },
+  { file: 'game-03-industry-sort.html', label: '遊戲 3：產業分類' },
+  { file: 'game-04-pattern-fill.html', label: '遊戲 4：句型填空' },
+];
+
+(function() {
+  const isLocal = window.location.href.startsWith('file://');
+  if (isLocal) {
+    document.getElementById('localWarning').style.display = 'block';
+    document.getElementById('qrSection').style.display = 'none';
+    return;
+  }
+  const baseUrl = window.location.href.replace(/index\.html$|\/$/, '');
+  const grid = document.getElementById('qrGrid');
+  GAMES.forEach(g => {
+    const fullUrl = baseUrl.replace(/\/$/, '') + '/' + g.file;
+    const cell = document.createElement('div');
+    cell.className = 'qr-cell';
+    cell.innerHTML = `
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(fullUrl)}" alt="${g.label}">
+      <div class="qr-label">${g.label}</div>
+      <div class="qr-hint">${g.file}</div>
+    `;
+    grid.appendChild(cell);
+  });
+})();
+</script>
+</body>
+</html>

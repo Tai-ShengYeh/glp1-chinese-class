@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>遊戲 3 — 受惠 vs 受壓產業分類</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  background: #FFFDFC;
+  color: #1F2933;
+  min-height: 100vh;
+  padding: 16px;
+  font-size: 16px;
+}
+.container { max-width: 960px; margin: 0 auto; }
+header {
+  background: #22344A;
+  color: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+header h1 { font-size: 22px; margin-bottom: 6px; }
+header .subtitle { color: #F5EEE6; font-size: 13px; }
+.nav-link {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #3A7D7C;
+  text-decoration: none;
+  font-size: 14px;
+}
+.nav-link:hover { text-decoration: underline; }
+.score-bar {
+  background: #F5EEE6;
+  padding: 10px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.instruction {
+  background: #ECF3FA;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #22344A;
+  line-height: 1.5;
+}
+.pool {
+  background: white;
+  border: 2px dashed #D9E1E8;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  min-height: 80px;
+}
+.pool-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #5B6777;
+  margin-bottom: 10px;
+}
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.item {
+  background: #F5EEE6;
+  border: 2px solid #D9E1E8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 15px;
+  font-weight: bold;
+  user-select: none;
+  min-height: 40px;
+}
+.item:hover { border-color: #3A7D7C; }
+.item.selected {
+  background: #FCEDE5;
+  border-color: #D96A3B;
+  box-shadow: 0 0 0 3px rgba(217, 106, 59, 0.2);
+}
+.bins {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.bin {
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 200px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+.bin:hover { transform: translateY(-2px); }
+.bin.win {
+  background: #E8F1EA;
+  border-color: #4A7C59;
+}
+.bin.lose {
+  background: #FBEBE7;
+  border-color: #C8553D;
+}
+.bin-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.bin.win .bin-title { color: #4A7C59; }
+.bin.lose .bin-title { color: #C8553D; }
+.bin-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 60px;
+}
+.dropped-item {
+  background: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  position: relative;
+  cursor: pointer;
+}
+.dropped-item.correct { color: #4A7C59; border: 1px solid #4A7C59; }
+.dropped-item.incorrect { color: #C8553D; border: 1px solid #C8553D; text-decoration: line-through; }
+.dropped-item .reason {
+  display: block;
+  font-size: 11px;
+  color: #5B6777;
+  font-weight: normal;
+  text-decoration: none;
+  margin-top: 3px;
+}
+.btn {
+  background: #D96A3B;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  min-height: 44px;
+}
+.btn:hover { background: #B85530; }
+.btn-secondary { background: #5B6777; }
+.btn-secondary:hover { background: #455260; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.controls { text-align: center; margin: 16px 0; }
+.complete-message {
+  background: #4A7C59;
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
+  margin: 20px 0;
+  text-align: center;
+  display: none;
+}
+.complete-message.partial { background: #D96A3B; }
+.complete-message h2 { font-size: 22px; margin-bottom: 12px; }
+.complete-message .score { font-size: 32px; font-weight: bold; margin: 12px 0; }
+.qr-section {
+  background: #F5EEE6;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+  text-align: center;
+}
+.qr-section img { display: block; margin: 0 auto 8px; }
+.qr-section p { font-size: 13px; color: #5B6777; }
+@media (max-width: 480px) {
+  .bins { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="nav-link">← 回主頁</a>
+  <header>
+    <h1>🏭 遊戲 3：受惠 vs 受壓產業</h1>
+    <div class="subtitle">把 8 個產業／品牌放到正確的欄位。完成後按「對答案」。</div>
+  </header>
+
+  <div class="score-bar">
+    <span>已分類：<span id="placed">0</span> / 8</span>
+    <span>分數：<span id="score">—</span></span>
+  </div>
+
+  <div class="instruction">
+    💡 玩法：① 點下面任何一個產業 → ② 點上方的「✅ 受惠」或「❌ 受壓」即可放入。
+    放錯了？再點一次它即可移回下面的池子。
+  </div>
+
+  <div class="bins">
+    <div class="bin win" onclick="dropTo('win')">
+      <div class="bin-title">✅ 受惠產業</div>
+      <div class="bin-items" id="winBin"></div>
+    </div>
+    <div class="bin lose" onclick="dropTo('lose')">
+      <div class="bin-title">❌ 受壓產業</div>
+      <div class="bin-items" id="loseBin"></div>
+    </div>
+  </div>
+
+  <div class="pool">
+    <div class="pool-title">📦 待分類（先點一個，再點上方欄位）</div>
+    <div class="items" id="pool"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="checkBtn" onclick="checkAnswers()" disabled>對答案</button>
+    <button class="btn btn-secondary" onclick="restart()">🔄 重新開始</button>
+  </div>
+
+  <div id="completeMessage" class="complete-message">
+    <h2 id="completeTitle">🎉 完成！</h2>
+    <div>你的分數</div>
+    <div class="score"><span id="finalScore">0</span> / 8</div>
+    <div id="finalComment"></div>
+    <br>
+    <button class="btn" onclick="restart()">再玩一次</button>
+  </div>
+
+  <div class="qr-section">
+    <img id="qr-img" width="150" height="150" alt="QR Code" style="display:none;">
+    <p id="qr-hint">📱 部署上線後可掃 QR 玩遊戲</p>
+  </div>
+</div>
+
+<script>
+const ITEMS = [
+  { id: 1, name: '雀巢 Nestlé', correct: 'win', reason: '推出 GLP-1 友善蛋白棒、營養奶昔' },
+  { id: 2, name: '通用磨坊', correct: 'win', reason: '高蛋白早餐受惠' },
+  { id: 3, name: 'Morrisons 超市', correct: 'win', reason: '設立 GLP-1 友善專區' },
+  { id: 4, name: '希臘優格', correct: 'win', reason: '高蛋白、高營養密度' },
+  { id: 5, name: '蛋白棒廠商', correct: 'win', reason: '小份量、高蛋白' },
+  { id: 6, name: '含糖汽水', correct: 'lose', reason: '購買量約下降 −7%' },
+  { id: 7, name: '酒精飲料', correct: 'lose', reason: '約 1/4 GLP-1 使用者停飲' },
+  { id: 8, name: '高澱粉零食', correct: 'lose', reason: '高熱量、低營養密度' },
+];
+
+const state = {
+  pool: [],
+  win: [],
+  lose: [],
+  selectedId: null,
+  checked: false,
+};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function init() {
+  state.pool = shuffle(ITEMS).map(it => it.id);
+  state.win = [];
+  state.lose = [];
+  state.selectedId = null;
+  state.checked = false;
+  document.getElementById('completeMessage').style.display = 'none';
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('score').textContent = '—';
+  render();
+}
+
+function render() {
+  renderPool();
+  renderBin('win');
+  renderBin('lose');
+  document.getElementById('placed').textContent = state.win.length + state.lose.length;
+  document.getElementById('checkBtn').disabled = state.pool.length > 0;
+}
+
+function renderPool() {
+  const pool = document.getElementById('pool');
+  pool.innerHTML = '';
+  state.pool.forEach(id => {
+    const item = ITEMS.find(x => x.id === id);
+    const el = document.createElement('div');
+    el.className = 'item' + (state.selectedId === id ? ' selected' : '');
+    el.textContent = item.name;
+    el.onclick = (e) => { e.stopPropagation(); selectItem(id); };
+    pool.appendChild(el);
+  });
+}
+
+function renderBin(binId) {
+  const box = document.getElementById(binId + 'Bin');
+  box.innerHTML = '';
+  state[binId].forEach(id => {
+    const item = ITEMS.find(x => x.id === id);
+    const el = document.createElement('div');
+    el.className = 'dropped-item';
+    if (state.checked) {
+      const correct = item.correct === binId;
+      el.classList.add(correct ? 'correct' : 'incorrect');
+      el.innerHTML = `${item.name}<span class="reason">${item.reason}</span>`;
+    } else {
+      el.textContent = item.name;
+      el.onclick = (e) => { e.stopPropagation(); takeBack(id, binId); };
+    }
+    box.appendChild(el);
+  });
+}
+
+function selectItem(id) {
+  state.selectedId = state.selectedId === id ? null : id;
+  render();
+}
+
+function dropTo(binId) {
+  if (state.checked) return;
+  if (!state.selectedId) return;
+  const id = state.selectedId;
+  state.pool = state.pool.filter(x => x !== id);
+  state.win = state.win.filter(x => x !== id);
+  state.lose = state.lose.filter(x => x !== id);
+  state[binId].push(id);
+  state.selectedId = null;
+  render();
+}
+
+function takeBack(id, fromBin) {
+  if (state.checked) return;
+  state[fromBin] = state[fromBin].filter(x => x !== id);
+  state.pool.push(id);
+  render();
+}
+
+function checkAnswers() {
+  state.checked = true;
+  let correctCount = 0;
+  state.win.forEach(id => {
+    if (ITEMS.find(x => x.id === id).correct === 'win') correctCount++;
+  });
+  state.lose.forEach(id => {
+    if (ITEMS.find(x => x.id === id).correct === 'lose') correctCount++;
+  });
+  document.getElementById('score').textContent = `${correctCount}/8`;
+  document.getElementById('finalScore').textContent = correctCount;
+  let comment = '';
+  const msg = document.getElementById('completeMessage');
+  msg.classList.remove('partial');
+  if (correctCount === 8) {
+    document.getElementById('completeTitle').textContent = '🎉 全部正確！';
+    comment = '你已經能掌握誰受惠、誰受壓。';
+  } else if (correctCount >= 6) {
+    document.getElementById('completeTitle').textContent = '👍 很接近了！';
+    comment = '看下方紅字部分，再讀一次文章就懂。';
+    msg.classList.add('partial');
+  } else {
+    document.getElementById('completeTitle').textContent = '🔁 再讀一次！';
+    comment = '建議重看 PPT Slide 14（受惠 vs 受壓）。';
+    msg.classList.add('partial');
+  }
+  document.getElementById('finalComment').textContent = comment;
+  msg.style.display = 'block';
+  msg.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('checkBtn').disabled = true;
+  render();
+}
+
+function restart() { init(); }
+
+(function() {
+  const url = window.location.href;
+  if (!url.startsWith('file://')) {
+    const img = document.getElementById('qr-img');
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
+    img.style.display = 'block';
+    document.getElementById('qr-hint').textContent = '📱 掃描開啟此遊戲';
+  }
+})();
+
+init();
+</script>
+</body>
+</html>
