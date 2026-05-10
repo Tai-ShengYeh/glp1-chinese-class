@@ -529,6 +529,43 @@ body {
   color: var(--muted);
 }
 
+/* Warmup IRS (Slide 3 inline) */
+.wm-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) 1fr;
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+}
+.wm-qr {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 14px;
+  text-align: center;
+  display: flex; flex-direction: column;
+}
+.wm-qr h3 { font-size: clamp(20px, 1.7vw, 26px); margin-bottom: 12px; }
+.wm-qr img { width: 100%; max-width: 220px; margin: 0 auto; background: white; padding: 8px; border-radius: 8px; display: block; }
+.wm-qr .wm-url { font-size: clamp(13px, 1vw, 16px); color: var(--sand); margin-top: 10px; word-break: break-all; }
+.wm-qr .wm-total { margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.2); font-size: clamp(17px, 1.4vw, 22px); }
+.wm-qr .wm-total strong { font-size: clamp(34px, 3vw, 50px); color: var(--pale-gold); display: block; font-weight: bold; line-height: 1.1; margin: 4px 0; }
+.wm-charts { display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow-y: auto; }
+.wm-chart { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 14px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.wm-chart .qn { display: inline-block; background: var(--orange); color: white; font-weight: bold; font-size: clamp(15px, 1.2vw, 19px); padding: 3px 12px; border-radius: 12px; margin-bottom: 4px; }
+.wm-chart .qt { font-size: clamp(20px, 1.7vw, 28px); font-weight: bold; margin: 6px 0 12px; color: var(--ink); }
+.wm-bar-row { display: grid; grid-template-columns: clamp(110px, 13vw, 180px) 1fr clamp(80px, 9vw, 130px); gap: 12px; align-items: center; margin-bottom: 8px; font-size: clamp(17px, 1.4vw, 22px); }
+.wm-bar-row .label { font-weight: bold; color: var(--navy); }
+.wm-bar-row .bar { height: clamp(28px, 2.4vw, 38px); background: var(--sand); border-radius: 6px; overflow: hidden; }
+.wm-bar-row .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s ease-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; color: white; font-weight: bold; font-size: clamp(13px, 1.1vw, 17px); }
+.wm-bar-row.f1 .bar-fill { background: linear-gradient(90deg, #5B7CB0, #3A6294); }
+.wm-bar-row.f2 .bar-fill { background: linear-gradient(90deg, #E08C5A, #D96A3B); }
+.wm-bar-row.f3 .bar-fill { background: linear-gradient(90deg, #5BA08C, #3A7D7C); }
+.wm-bar-row .count { text-align: right; font-weight: bold; font-variant-numeric: tabular-nums; color: var(--ink); }
+.wm-bar-row .count .pct { font-size: clamp(13px, 1vw, 17px); color: var(--muted); font-weight: normal; }
+.wm-live { display: inline-block; font-size: clamp(13px, 1vw, 16px); background: var(--pale-green); color: var(--green); padding: 3px 10px; border-radius: 12px; font-weight: bold; margin-left: 10px; }
+.wm-live::before { content: '🟢 '; }
+
 /* Print / mobile minor adjustments */
 @media (max-width: 720px) {
   .row-3, .row-4 { grid-template-columns: 1fr 1fr; }
@@ -536,6 +573,7 @@ body {
   .compare-flow { grid-template-columns: 1fr; }
   .compare-flow .arrow { transform: rotate(90deg); }
   .recap-grid { grid-template-columns: 1fr 1fr; }
+  .wm-layout { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -587,15 +625,43 @@ body {
   </div>
 </section>
 
-<!-- Slide 3: 暖身（即時 IRS）-->
+<!-- Slide 3: 暖身（即時 IRS，內嵌）-->
 <section class="slide" data-no="3">
   <div class="slide-header">
     <div class="slide-title">課前暖身：三題快問<span class="qr-pop">📱 學生掃 QR 投票</span></div>
-    <div class="slide-subtitle">學生掃左邊 QR 投票 → 右邊長條圖即時更新。投完進入文章後可比對全班想法。</div>
+    <div class="slide-subtitle">學生掃左邊 QR 投票 → 右邊長條圖即時更新。投完看完文章後可再比對。</div>
   </div>
   <div class="slide-body">
-    <div class="iframe-wrap">
-      <iframe src="warmup-display.html" loading="lazy"></iframe>
+    <div class="wm-layout">
+      <aside class="wm-qr">
+        <h3>📱 掃 QR 投票</h3>
+        <img id="wm-qr-img" alt="掃描投票">
+        <div class="wm-url" id="wm-url">…</div>
+        <div class="wm-total"><div>已收到</div><strong id="wm-total">0</strong><div>票</div></div>
+      </aside>
+      <div class="wm-charts">
+        <div class="wm-chart" data-q="q1">
+          <span class="qn">第 1 題</span><span class="wm-live">即時更新</span>
+          <div class="qt">你聽過「瘦瘦針」嗎？</div>
+          <div class="wm-bar-row f1"><span class="label">是</span><div class="bar"><div class="bar-fill" id="wm-q1-yes" style="width:0%"></div></div><span class="count" id="wm-q1-yes-c">0</span></div>
+          <div class="wm-bar-row f2"><span class="label">沒聽過</span><div class="bar"><div class="bar-fill" id="wm-q1-no" style="width:0%"></div></div><span class="count" id="wm-q1-no-c">0</span></div>
+          <div class="wm-bar-row f3"><span class="label">聽過但不熟</span><div class="bar"><div class="bar-fill" id="wm-q1-unsure" style="width:0%"></div></div><span class="count" id="wm-q1-unsure-c">0</span></div>
+        </div>
+        <div class="wm-chart" data-q="q2">
+          <span class="qn">第 2 題</span>
+          <div class="qt">你多久喝一次含糖飲料？</div>
+          <div class="wm-bar-row f2"><span class="label">每天</span><div class="bar"><div class="bar-fill" id="wm-q2-daily" style="width:0%"></div></div><span class="count" id="wm-q2-daily-c">0</span></div>
+          <div class="wm-bar-row f2"><span class="label">每週</span><div class="bar"><div class="bar-fill" id="wm-q2-weekly" style="width:0%"></div></div><span class="count" id="wm-q2-weekly-c">0</span></div>
+          <div class="wm-bar-row f2"><span class="label">很少</span><div class="bar"><div class="bar-fill" id="wm-q2-rare" style="width:0%"></div></div><span class="count" id="wm-q2-rare-c">0</span></div>
+        </div>
+        <div class="wm-chart" data-q="q3">
+          <span class="qn">第 3 題</span>
+          <div class="qt">超市的小份量蛋白棒變多了嗎？</div>
+          <div class="wm-bar-row f3"><span class="label">變多</span><div class="bar"><div class="bar-fill" id="wm-q3-yes" style="width:0%"></div></div><span class="count" id="wm-q3-yes-c">0</span></div>
+          <div class="wm-bar-row f3"><span class="label">沒變多</span><div class="bar"><div class="bar-fill" id="wm-q3-no" style="width:0%"></div></div><span class="count" id="wm-q3-no-c">0</span></div>
+          <div class="wm-bar-row f3"><span class="label">沒注意</span><div class="bar"><div class="bar-fill" id="wm-q3-unsure" style="width:0%"></div></div><span class="count" id="wm-q3-unsure-c">0</span></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1166,5 +1232,69 @@ document.addEventListener('touchend', (e) => {
   if (Math.abs(dx) > 60) show(cur + (dx < 0 ? 1 : -1));
 });
 </script>
+
+<!-- Slide 3 暖身 IRS：Firebase 即時監聽 -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
+import { getFirestore, collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyCTLhRf7jcJH_AwUzbV4MawkrKNPrIVG5Y',
+  authDomain: 'my-teaching-tools-517a0.firebaseapp.com',
+  projectId: 'my-teaching-tools-517a0',
+  storageBucket: 'my-teaching-tools-517a0.firebasestorage.app',
+  messagingSenderId: '244288457011',
+  appId: '1:244288457011:web:4b3ff8a846a6c50b169646',
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const today = new Date();
+const SESSION = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+// QR Code（指向 warmup-vote.html）
+const baseUrl = (window.location.href.replace(/[^/]*$/, '')).replace(/\/$/, '');
+const voteUrl = baseUrl + '/warmup-vote.html';
+const qrImg = document.getElementById('wm-qr-img');
+const urlEl = document.getElementById('wm-url');
+if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(voteUrl)}&margin=4`;
+if (urlEl) urlEl.textContent = voteUrl.replace(/^https?:\/\//, '');
+
+// 即時監聽
+onSnapshot(collection(db, 'glp1_warmup_votes'), (snap) => {
+  const counts = {
+    q1: { yes: 0, no: 0, unsure: 0 },
+    q2: { daily: 0, weekly: 0, rare: 0 },
+    q3: { yes: 0, no: 0, unsure: 0 },
+  };
+  let total = 0;
+  snap.forEach(doc => {
+    const d = doc.data();
+    if (d.session !== SESSION) return;
+    if (counts[d.question] && counts[d.question][d.choice] !== undefined) {
+      counts[d.question][d.choice]++;
+      total++;
+    }
+  });
+  const totalEl = document.getElementById('wm-total');
+  if (totalEl) totalEl.textContent = total;
+  ['q1', 'q2', 'q3'].forEach(q => {
+    const cs = counts[q];
+    const max = Math.max(...Object.values(cs), 1);
+    const tot = Object.values(cs).reduce((a, b) => a + b, 0) || 1;
+    Object.entries(cs).forEach(([opt, n]) => {
+      const fill = document.getElementById(`wm-${q}-${opt}`);
+      const cnt = document.getElementById(`wm-${q}-${opt}-c`);
+      if (fill) fill.style.width = `${(n / max * 100).toFixed(0)}%`;
+      if (cnt) {
+        const pct = ((n / tot) * 100).toFixed(0);
+        cnt.innerHTML = `${n} <span class="pct">(${pct}%)</span>`;
+      }
+    });
+  });
+}, (err) => console.error('Warmup snapshot error:', err));
+</script>
+
 </body>
 </html>
