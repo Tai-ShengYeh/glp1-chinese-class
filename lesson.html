@@ -566,6 +566,37 @@ body {
 .wm-live { display: inline-block; font-size: clamp(13px, 1vw, 16px); background: var(--pale-green); color: var(--green); padding: 3px 10px; border-radius: 12px; font-weight: bold; margin-left: 10px; }
 .wm-live::before { content: '🟢 '; }
 
+/* === Vote-mode (student on phone) === */
+.wm-vote { display: none; flex: 1; flex-direction: column; gap: 14px; overflow-y: auto; padding-right: 4px; }
+section[data-no="3"].wm-vote-mode .wm-layout { display: none; }
+section[data-no="3"].wm-vote-mode .wm-vote { display: flex; }
+.wm-vote-banner {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+  color: white; padding: 14px 18px; border-radius: 12px; text-align: center;
+  font-size: clamp(15px, 1.2vw, 19px); font-weight: bold;
+}
+.wm-vote-q { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.wm-vote-q.q1 { border-left: 6px solid var(--pale-blue); }
+.wm-vote-q.q2 { border-left: 6px solid var(--pale-orange); }
+.wm-vote-q.q3 { border-left: 6px solid var(--pale-teal); }
+.wm-vote-q .vqn { display: inline-block; background: var(--orange); color: white; font-weight: bold; font-size: clamp(14px, 1.1vw, 17px); padding: 3px 12px; border-radius: 12px; margin-bottom: 6px; }
+.wm-vote-q .vqt { font-size: clamp(20px, 1.7vw, 26px); font-weight: bold; margin: 6px 0 14px; color: var(--ink); }
+.wm-vote-q .vqo { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 600px) { .wm-vote-q .vqo { grid-template-columns: repeat(3, 1fr); } }
+.wm-vote-q button {
+  background: var(--sand); border: 2px solid transparent; border-radius: 10px;
+  padding: 14px 18px; font-size: clamp(17px, 1.35vw, 22px); font-weight: bold;
+  font-family: inherit; color: var(--ink); cursor: pointer; text-align: center;
+  min-height: 52px; transition: all 0.15s;
+}
+.wm-vote-q button:hover { background: var(--pale-orange); border-color: var(--orange); }
+.wm-vote-q button:disabled { cursor: default; opacity: 0.5; }
+.wm-vote-q button.selected { background: var(--pale-green); border-color: var(--green); color: var(--green); }
+.wm-vote-q button.selected::before { content: '✅ '; }
+.wm-vote-q .vqthx { display: none; margin-top: 10px; padding: 8px 12px; background: var(--pale-green); color: var(--green); border-radius: 8px; font-size: clamp(14px, 1.1vw, 17px); text-align: center; font-weight: bold; }
+.wm-vote-q .vqthx.show { display: block; }
+body.vote-mode .nav-bar { display: none; }
+
 /* Print / mobile minor adjustments */
 @media (max-width: 720px) {
   .row-3, .row-4 { grid-template-columns: 1fr 1fr; }
@@ -632,6 +663,41 @@ body {
     <div class="slide-subtitle">學生掃左邊 QR 投票 → 右邊長條圖即時更新。投完看完文章後可再比對。</div>
   </div>
   <div class="slide-body">
+    <!-- 學生投票介面（vote=1 模式才顯示）-->
+    <div class="wm-vote">
+      <div class="wm-vote-banner">📊 課前暖身投票｜先想 30 秒，再點選你的答案</div>
+      <div class="wm-vote-q q1">
+        <span class="vqn">第 1 題</span>
+        <div class="vqt">你聽過「瘦瘦針」嗎？</div>
+        <div class="vqo">
+          <button data-q="q1" data-c="yes">是，聽過</button>
+          <button data-q="q1" data-c="no">沒聽過</button>
+          <button data-q="q1" data-c="unsure">聽過但不熟</button>
+        </div>
+        <div class="vqthx">✅ 已投票，謝謝！</div>
+      </div>
+      <div class="wm-vote-q q2">
+        <span class="vqn">第 2 題</span>
+        <div class="vqt">你多久喝一次含糖飲料？</div>
+        <div class="vqo">
+          <button data-q="q2" data-c="daily">每天</button>
+          <button data-q="q2" data-c="weekly">每週</button>
+          <button data-q="q2" data-c="rare">很少</button>
+        </div>
+        <div class="vqthx">✅ 已投票，謝謝！</div>
+      </div>
+      <div class="wm-vote-q q3">
+        <span class="vqn">第 3 題</span>
+        <div class="vqt">超市的小份量蛋白棒變多了嗎？</div>
+        <div class="vqo">
+          <button data-q="q3" data-c="yes">有，明顯變多</button>
+          <button data-q="q3" data-c="no">沒有變多</button>
+          <button data-q="q3" data-c="unsure">沒注意</button>
+        </div>
+        <div class="vqthx">✅ 已投票，謝謝！</div>
+      </div>
+    </div>
+    <!-- 老師投影介面（預設模式）-->
     <div class="wm-layout">
       <aside class="wm-qr">
         <h3>📱 掃 QR 投票</h3>
@@ -1233,10 +1299,10 @@ document.addEventListener('touchend', (e) => {
 });
 </script>
 
-<!-- Slide 3 暖身 IRS：Firebase 即時監聽 -->
+<!-- Slide 3 暖身 IRS：Firebase 雙模式（老師看板 + 學生投票）-->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
-import { getFirestore, collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCTLhRf7jcJH_AwUzbV4MawkrKNPrIVG5Y',
@@ -1252,16 +1318,70 @@ const db = getFirestore(app);
 
 const today = new Date();
 const SESSION = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+const lsKey = (q) => `glp1_warmup_${SESSION}_${q}`;
 
-// QR Code（指向 warmup-vote.html）
-const baseUrl = (window.location.href.replace(/[^/]*$/, '')).replace(/\/$/, '');
-const voteUrl = baseUrl + '/warmup-vote.html';
+// 偵測投票模式
+const params = new URLSearchParams(window.location.search);
+const isVoteMode = params.get('vote') === '1';
+const slide3 = document.querySelector('section[data-no="3"]');
+
+if (isVoteMode) {
+  document.body.classList.add('vote-mode');
+  if (slide3) slide3.classList.add('wm-vote-mode');
+  // 自動跳到 Slide 3
+  if (location.hash !== '#3') location.hash = '#3';
+  // 還原已投過的狀態
+  document.querySelectorAll('.wm-vote-q').forEach(card => {
+    const btn0 = card.querySelector('button');
+    if (!btn0) return;
+    const q = btn0.dataset.q;
+    const prev = localStorage.getItem(lsKey(q));
+    if (prev) markVoted(card, prev);
+  });
+  // 綁定點擊
+  document.querySelectorAll('.wm-vote-q button').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const card = btn.closest('.wm-vote-q');
+      const q = btn.dataset.q;
+      const c = btn.dataset.c;
+      if (localStorage.getItem(lsKey(q))) return;
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '⏳ 送出中…';
+      try {
+        await addDoc(collection(db, 'glp1_warmup_votes'), {
+          question: q, choice: c, session: SESSION, timestamp: serverTimestamp(),
+        });
+        localStorage.setItem(lsKey(q), c);
+        btn.textContent = orig;
+        markVoted(card, c);
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = orig;
+        alert('投票失敗：' + e.message);
+      }
+    });
+  });
+}
+
+function markVoted(card, choice) {
+  card.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.c === choice) b.classList.add('selected');
+  });
+  const thx = card.querySelector('.vqthx');
+  if (thx) thx.classList.add('show');
+}
+
+// === 老師看板：QR + 即時長條圖（vote 模式不顯示，但仍可背景監聽即時數字）===
+const baseUrl = (window.location.href.replace(/[^/?]*(\?.*)?$/, '')).replace(/\/$/, '');
+const voteUrl = baseUrl + '/lesson.html?vote=1#3';
 const qrImg = document.getElementById('wm-qr-img');
 const urlEl = document.getElementById('wm-url');
 if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(voteUrl)}&margin=4`;
 if (urlEl) urlEl.textContent = voteUrl.replace(/^https?:\/\//, '');
 
-// 即時監聽
+// 即時監聽（兩個模式都跑：老師端更新長條圖，學生端略過 UI 更新但不報錯）
 onSnapshot(collection(db, 'glp1_warmup_votes'), (snap) => {
   const counts = {
     q1: { yes: 0, no: 0, unsure: 0 },
