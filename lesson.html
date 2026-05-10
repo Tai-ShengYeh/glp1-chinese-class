@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLP-1 食品營養華語課程 ｜ 整合課堂簡報</title>
+<style>
+:root {
+  --navy: #22344A;
+  --teal: #3A7D7C;
+  --orange: #D96A3B;
+  --red: #C8553D;
+  --green: #4A7C59;
+  --sand: #F5EEE6;
+  --cream: #FFFDFC;
+  --ink: #1F2933;
+  --muted: #5B6777;
+  --line: #D9E1E8;
+  --pale-blue: #ECF3FA;
+  --pale-orange: #FCEDE5;
+  --pale-teal: #E7F3F1;
+  --pale-gold: #F6F1DE;
+  --pale-red: #FBEBE7;
+  --pale-green: #E8F1EA;
+  --pale-purple: #F2EAF5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+  font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  background: #0a0a0a;
+  color: var(--ink);
+}
+.deck { position: relative; width: 100vw; height: 100vh; }
+.slide {
+  position: absolute; inset: 0;
+  background: var(--cream);
+  display: none;
+  padding: 4vh 4vw 5vh;
+  overflow: auto;
+}
+.slide.active { display: flex; flex-direction: column; }
+
+/* Navigation bar */
+.nav-bar {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(34, 52, 74, 0.94);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 22px;
+  display: flex; gap: 8px;
+  align-items: center;
+  z-index: 100;
+  font-size: 13px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+.nav-bar button {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 5px 12px;
+  cursor: pointer;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 13px;
+  min-height: 32px;
+  min-width: 32px;
+}
+.nav-bar button:hover { background: rgba(255,255,255,0.15); }
+.nav-bar .progress { padding: 0 6px; min-width: 60px; text-align: center; }
+
+/* Slide-level chrome */
+.slide-header {
+  border-bottom: 2px solid var(--navy);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+.slide-title {
+  font-size: clamp(20px, 2.4vw, 36px);
+  font-weight: bold;
+  color: var(--navy);
+  line-height: 1.25;
+}
+.slide-subtitle {
+  font-size: clamp(13px, 1.1vw, 17px);
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.slide-body {
+  flex: 1; display: flex; flex-direction: column; min-height: 0;
+}
+
+.slide-meta-fixed {
+  position: fixed;
+  bottom: 12px;
+  right: 14px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  z-index: 50;
+}
+.audio-cue {
+  display: inline-block;
+  background: var(--pale-teal);
+  color: var(--teal);
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: clamp(11px, 0.9vw, 14px);
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+/* Common building blocks */
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; min-height: 0; }
+.row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; flex: 1; min-height: 0; }
+.row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; flex: 1; min-height: 0; }
+.row-6-3x2 { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; gap: 14px; flex: 1; min-height: 0; }
+
+.card {
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column;
+  background: var(--pale-blue);
+}
+.card.o { background: var(--pale-orange); }
+.card.t { background: var(--pale-teal); }
+.card.g { background: var(--pale-gold); }
+.card.r { background: var(--pale-red); }
+.card.gr { background: var(--pale-green); }
+.card.p { background: var(--pale-purple); }
+.card .head {
+  font-size: clamp(16px, 1.6vw, 24px);
+  font-weight: bold;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.card .sub {
+  font-size: clamp(11px, 0.9vw, 14px);
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 8px;
+}
+.card .body {
+  font-size: clamp(13px, 1.1vw, 17px);
+  color: var(--ink);
+  line-height: 1.6;
+}
+.card ul {
+  font-size: clamp(13px, 1.1vw, 17px);
+  color: var(--ink);
+  line-height: 1.7;
+  padding-left: 20px;
+}
+.card .footer-line {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  font-size: clamp(11px, 0.9vw, 14px);
+  color: var(--muted);
+  font-style: italic;
+}
+.tag {
+  display: inline-block;
+  background: var(--pale-teal);
+  color: var(--teal);
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-weight: bold;
+  font-size: clamp(11px, 0.9vw, 14px);
+  margin-bottom: 8px;
+}
+.tag.o { background: var(--pale-orange); color: var(--orange); }
+.tag.r { background: var(--pale-red); color: var(--red); }
+.tag.gr { background: var(--pale-green); color: var(--green); }
+
+/* Cover */
+.cover { background: linear-gradient(135deg, var(--sand) 0%, var(--cream) 70%); }
+.cover .body-area {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 0 4vw;
+}
+.cover h1 {
+  font-size: clamp(32px, 4.4vw, 72px);
+  color: var(--navy);
+  line-height: 1.15;
+  margin-bottom: 14px;
+  font-weight: bold;
+}
+.cover .sub-h {
+  font-size: clamp(18px, 1.9vw, 30px);
+  color: var(--orange);
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+.cover .meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-top: 30px;
+  font-size: clamp(13px, 1.1vw, 17px);
+  color: var(--muted);
+}
+.cover .meta-grid div { display: flex; align-items: center; gap: 8px; }
+.cover .meta-grid strong { color: var(--ink); }
+
+/* Vocab card */
+.vocab-card {
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  background: var(--pale-blue);
+}
+.vocab-card.o { background: var(--pale-orange); }
+.vocab-card.t { background: var(--pale-teal); }
+.vocab-card.g { background: var(--pale-gold); }
+.vocab-card.p { background: var(--pale-purple); }
+.vocab-card.gr { background: var(--pale-green); }
+.vocab-card .term { font-size: clamp(20px, 2vw, 30px); font-weight: bold; color: var(--ink); }
+.vocab-card .pinyin { font-size: clamp(11px, 0.85vw, 14px); color: var(--teal); font-style: italic; }
+.vocab-card .def { font-size: clamp(13px, 1.05vw, 16px); color: var(--ink); margin-top: 4px; line-height: 1.5; }
+.vocab-card .ex {
+  font-size: clamp(12px, 0.95vw, 15px);
+  color: var(--muted);
+  font-style: italic;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0,0,0,0.1);
+}
+
+/* Iframe slides */
+.iframe-wrap {
+  flex: 1;
+  min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  background: white;
+}
+.iframe-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+.qr-pop {
+  display: inline-block;
+  background: var(--navy);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: clamp(11px, 0.9vw, 14px);
+  margin-left: 10px;
+}
+
+/* Stats / numbers */
+.big-num {
+  font-size: clamp(50px, 6vw, 110px);
+  font-weight: bold;
+  line-height: 1;
+  color: var(--orange);
+  text-align: center;
+  margin: 12px 0;
+}
+.big-num.r { color: var(--red); }
+.big-num.t { color: var(--teal); }
+.big-num.gr { color: var(--green); }
+
+/* Win vs Lose two-col */
+.vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1; min-height: 0; }
+.vs-grid .vs {
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex; flex-direction: column;
+}
+.vs-grid .vs.win { background: var(--pale-green); border: 2px solid var(--green); }
+.vs-grid .vs.lose { background: var(--pale-red); border: 2px solid var(--red); }
+.vs-grid .vs h3 {
+  font-size: clamp(20px, 2vw, 30px);
+  margin-bottom: 14px;
+}
+.vs-grid .vs.win h3 { color: var(--green); }
+.vs-grid .vs.lose h3 { color: var(--red); }
+.vs-grid .vs ul {
+  font-size: clamp(14px, 1.2vw, 18px);
+  line-height: 2;
+  padding-left: 20px;
+  flex: 1;
+}
+
+/* Pattern slide */
+.pattern-original {
+  background: var(--pale-blue);
+  border-radius: 12px;
+  padding: 18px 22px;
+  font-size: clamp(16px, 1.6vw, 24px);
+  font-weight: bold;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.pattern-original .hl { color: var(--orange); }
+.pattern-example {
+  background: var(--pale-orange);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-top: 16px;
+  font-size: clamp(15px, 1.5vw, 22px);
+  color: var(--ink);
+  line-height: 1.6;
+}
+.pattern-task {
+  background: var(--pale-teal);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-top: 16px;
+  flex: 1;
+}
+.pattern-task strong { color: var(--teal); display: block; margin-bottom: 8px; font-size: clamp(15px, 1.3vw, 20px); }
+.pattern-task ul { padding-left: 20px; line-height: 1.8; font-size: clamp(13px, 1.1vw, 17px); }
+
+/* Break slide */
+.break-card {
+  margin: auto;
+  background: var(--pale-gold);
+  border-radius: 18px;
+  padding: 40px 50px;
+  text-align: center;
+  max-width: 800px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.1);
+}
+.break-card h1 {
+  font-size: clamp(36px, 5vw, 80px);
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+.break-card .trivia-label {
+  font-size: clamp(14px, 1.2vw, 18px);
+  color: var(--teal);
+  font-weight: bold;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+.break-card .trivia {
+  font-size: clamp(28px, 3.5vw, 56px);
+  font-weight: bold;
+  color: var(--ink);
+}
+.break-card .trivia-en {
+  font-size: clamp(14px, 1.4vw, 22px);
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 8px;
+}
+.break-card .trivia-note {
+  font-size: clamp(13px, 1.1vw, 17px);
+  color: var(--muted);
+  margin-top: 16px;
+  line-height: 1.6;
+}
+.break-card .countdown {
+  font-size: clamp(20px, 2vw, 30px);
+  color: var(--orange);
+  font-weight: bold;
+  margin-top: 24px;
+}
+
+/* Recap nine-grid */
+.recap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  flex: 1;
+}
+.recap-cell {
+  background: var(--pale-blue);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.recap-cell.o { background: var(--pale-orange); }
+.recap-cell.t { background: var(--pale-teal); }
+.recap-cell.g { background: var(--pale-gold); }
+.recap-cell.p { background: var(--pale-purple); }
+.recap-cell.gr { background: var(--pale-green); }
+.recap-cell.r { background: var(--pale-red); }
+.recap-cell .check { font-size: clamp(20px, 2vw, 32px); color: var(--orange); }
+.recap-cell .term { font-size: clamp(18px, 1.8vw, 26px); font-weight: bold; }
+.recap-cell .self { font-size: clamp(11px, 0.9vw, 14px); color: var(--muted); font-style: italic; margin-top: 4px; }
+
+/* Roles slide */
+.roles-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; flex: 1; }
+.role-card {
+  border-radius: 12px;
+  padding: 18px;
+  display: flex; flex-direction: column;
+  text-align: center;
+  background: var(--pale-blue);
+}
+.role-card.o { background: var(--pale-orange); }
+.role-card.t { background: var(--pale-teal); }
+.role-card.g { background: var(--pale-gold); }
+.role-card .icon { font-size: clamp(32px, 3.5vw, 56px); margin-bottom: 8px; }
+.role-card .role-name { font-size: clamp(16px, 1.5vw, 22px); font-weight: bold; color: var(--ink); margin-bottom: 6px; }
+.role-card .role-desc { font-size: clamp(12px, 1vw, 15px); color: var(--muted); line-height: 1.5; }
+
+/* Edcafe tasks */
+.tasks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; flex: 1; }
+.task-card { border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; }
+.task-card.o { background: var(--pale-orange); }
+.task-card.t { background: var(--pale-teal); }
+.task-card.b { background: var(--pale-blue); }
+.task-card .num { font-size: clamp(36px, 4vw, 60px); font-weight: bold; color: var(--orange); line-height: 1; }
+.task-card .title { font-size: clamp(15px, 1.4vw, 20px); font-weight: bold; color: var(--ink); margin: 8px 0; }
+.task-card .desc { font-size: clamp(13px, 1.1vw, 17px); color: var(--muted); line-height: 1.6; }
+
+/* Misc */
+.fill-blanks { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.fill-row {
+  background: var(--pale-blue);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 16px;
+}
+.fill-row.o { background: var(--pale-orange); }
+.fill-row .num {
+  font-size: clamp(22px, 2.2vw, 34px);
+  font-weight: bold;
+  color: var(--orange);
+  flex-shrink: 0;
+}
+.fill-row .text {
+  font-size: clamp(14px, 1.4vw, 21px);
+  font-weight: bold;
+  color: var(--ink);
+  flex: 1;
+}
+.fill-row .answer {
+  background: rgba(255,255,255,0.7);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: clamp(13px, 1.1vw, 17px);
+  color: var(--teal);
+  font-weight: bold;
+}
+
+.compare-flow {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 12px;
+  flex: 1;
+  align-items: stretch;
+}
+.compare-box {
+  border-radius: 14px;
+  padding: 24px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center;
+}
+.compare-box.before { background: var(--pale-red); border: 2px solid var(--red); }
+.compare-box.after { background: var(--pale-green); border: 2px solid var(--green); }
+.compare-box .label {
+  font-size: clamp(13px, 1.1vw, 17px);
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+.compare-box.before .label { color: var(--red); }
+.compare-box.after .label { color: var(--green); }
+.compare-box .heading {
+  font-size: clamp(24px, 2.6vw, 42px);
+  font-weight: bold;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.compare-box .examples { font-size: clamp(12px, 1vw, 16px); color: var(--muted); font-style: italic; }
+.arrow { display: flex; align-items: center; justify-content: center; font-size: clamp(28px, 3vw, 48px); color: var(--orange); font-weight: bold; }
+
+/* Mech flow */
+.mech-flow { display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; gap: 8px; align-items: stretch; margin-bottom: 18px; }
+.mech-step {
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.mech-step .where { font-size: clamp(20px, 2.2vw, 32px); font-weight: bold; color: var(--ink); margin-bottom: 8px; }
+.mech-step .what { font-size: clamp(13px, 1.1vw, 17px); color: var(--muted); }
+.mech-tasks {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+.mech-tasks h4 { color: var(--teal); font-size: clamp(13px, 1.1vw, 16px); margin-bottom: 6px; }
+.mech-tasks ul { padding-left: 20px; line-height: 1.7; font-size: clamp(13px, 1.1vw, 16px); }
+
+/* Summary cards (nutrient cards) */
+.nutri-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; flex: 1; }
+.nutri-card {
+  border-radius: 14px;
+  padding: 20px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.nutri-card.o { background: var(--pale-orange); }
+.nutri-card.t { background: var(--pale-teal); }
+.nutri-card.b { background: var(--pale-blue); }
+.nutri-card .icon { font-size: clamp(36px, 4vw, 60px); margin-bottom: 8px; }
+.nutri-card .name { font-size: clamp(20px, 2vw, 30px); font-weight: bold; color: var(--ink); }
+.nutri-card .pinyin { font-size: clamp(11px, 0.95vw, 14px); color: var(--teal); font-style: italic; }
+.nutri-card .desc { font-size: clamp(13px, 1.1vw, 16px); color: var(--ink); margin: 8px 0; line-height: 1.5; }
+.nutri-card .examples-h {
+  font-size: clamp(11px, 0.9vw, 14px);
+  color: var(--orange);
+  font-weight: bold;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  width: 100%;
+}
+.nutri-card .examples-list { font-size: clamp(12px, 1vw, 15px); color: var(--muted); margin-top: 4px; }
+
+/* Loading hint for iframes */
+.iframe-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Print / mobile minor adjustments */
+@media (max-width: 720px) {
+  .row-3, .row-4 { grid-template-columns: 1fr 1fr; }
+  .roles-grid, .tasks-grid, .nutri-grid { grid-template-columns: 1fr 1fr; }
+  .compare-flow { grid-template-columns: 1fr; }
+  .compare-flow .arrow { transform: rotate(90deg); }
+  .recap-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- Slide 1: 封面 -->
+<section class="slide active cover" data-no="1">
+  <div class="body-area">
+    <span class="tag">食品營養華語文獻閱讀</span>
+    <h1>瘦瘦針改變的不只是體重</h1>
+    <div class="sub-h">GLP-1 如何重塑食品與飲料市場？</div>
+    <div class="meta-grid">
+      <div>📰 <strong>來源</strong>　foodNEXT 食力 ／ 2026.01.30</div>
+      <div>👥 <strong>對象</strong>　A2–B1 級華語學習者</div>
+      <div>⏱️ <strong>長度</strong>　24 張 ／ 120 分鐘課堂</div>
+      <div>🎧 <strong>課前</strong>　NotebookLM 11 分鐘音訊</div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 2: 學習目標 -->
+<section class="slide" data-no="2">
+  <div class="slide-header">
+    <div class="slide-title">今天的學習目標</div>
+    <div class="slide-subtitle">三件事學會，回家就能完成 Edcafe 寫作任務。</div>
+  </div>
+  <div class="slide-body">
+    <div class="row-3">
+      <div class="card">
+        <div style="font-size:clamp(28px,3vw,48px);">🧠</div>
+        <div class="head" style="color:var(--orange);">認識</div>
+        <div style="font-size:clamp(20px,1.8vw,28px); font-weight:bold; margin:8px 0;">GLP-1 機制</div>
+        <div class="body">能用自己的話說出 GLP-1 怎麼讓人吃得少。</div>
+      </div>
+      <div class="card o">
+        <div style="font-size:clamp(28px,3vw,48px);">💡</div>
+        <div class="head" style="color:var(--orange);">解釋</div>
+        <div style="font-size:clamp(20px,1.8vw,28px); font-weight:bold; margin:8px 0;">營養密度</div>
+        <div class="body">能解釋為什麼吃得少更要吃得「精」。</div>
+      </div>
+      <div class="card t">
+        <div style="font-size:clamp(28px,3vw,48px);">✍️</div>
+        <div class="head" style="color:var(--orange);">寫作</div>
+        <div style="font-size:clamp(20px,1.8vw,28px); font-weight:bold; margin:8px 0;">350-450 字短文</div>
+        <div class="body">能用 ≥5 個關鍵詞寫出有立場的議論文。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 3: 暖身 -->
+<section class="slide" data-no="3">
+  <div class="slide-header">
+    <div class="slide-title">課前暖身：三題快問</div>
+    <div class="slide-subtitle">先想 30 秒，再舉手投票。</div>
+  </div>
+  <div class="slide-body">
+    <div class="row-3" style="flex:0 0 auto; margin-bottom: 18px;">
+      <div class="card">
+        <div style="font-size:clamp(20px,1.8vw,28px); font-weight:bold; color:var(--orange);">Q1</div>
+        <div style="font-size:clamp(16px,1.5vw,22px); font-weight:bold; margin:8px 0;">你聽過「瘦瘦針」嗎？</div>
+        <div class="body">是 ／ 否 ／ 聽過但不熟</div>
+      </div>
+      <div class="card o">
+        <div style="font-size:clamp(20px,1.8vw,28px); font-weight:bold; color:var(--orange);">Q2</div>
+        <div style="font-size:clamp(16px,1.5vw,22px); font-weight:bold; margin:8px 0;">你多久喝一次含糖飲料？</div>
+        <div class="body">每天 ／ 每週 ／ 很少</div>
+      </div>
+      <div class="card t">
+        <div style="font-size:clamp(20px,1.8vw,28px); font-weight:bold; color:var(--orange);">Q3</div>
+        <div style="font-size:clamp(16px,1.5vw,22px); font-weight:bold; margin:8px 0;">超市的小份量蛋白棒變多了嗎？</div>
+        <div class="body">有 ／ 沒有 ／ 沒注意</div>
+      </div>
+    </div>
+    <div class="card g" style="flex:1;">
+      <div class="head" style="color:var(--teal);">📊 投票結果與小討論</div>
+      <div class="body">把全班的答案寫在白板上。如果有人「每天」喝含糖飲料，他們的答案在文章看完後會改變嗎？</div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 4: 詞彙快閃 ① 機制類 -->
+<section class="slide" data-no="4">
+  <div class="slide-header">
+    <div class="slide-title">詞彙快閃 ① 機制類（3 詞）<span class="audio-cue">🔊 音訊 1:30</span></div>
+    <div class="slide-subtitle">老師念三遍 → 學生跟讀 → 抽人領念。每詞要會說、會解釋、會舉例。</div>
+  </div>
+  <div class="slide-body">
+    <div class="row-3">
+      <div class="vocab-card">
+        <div class="term">GLP-1</div>
+        <div class="pinyin">jí ài pī yī</div>
+        <div class="def">解釋：讓人吃得少的腸道荷爾蒙</div>
+        <div class="ex">例：GLP-1 讓人比較不想吃東西。</div>
+      </div>
+      <div class="vocab-card o">
+        <div class="term">腸泌素</div>
+        <div class="pinyin">cháng mì sù</div>
+        <div class="def">解釋：從腸道分泌的訊息物質</div>
+        <div class="ex">例：腸泌素會告訴大腦：飽了。</div>
+      </div>
+      <div class="vocab-card t">
+        <div class="term">胰島素</div>
+        <div class="pinyin">yí dǎo sù</div>
+        <div class="def">解釋：讓血糖下降的荷爾蒙</div>
+        <div class="ex">例：糖尿病人需要打胰島素。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 5: 詞彙快閃 ② 食品/產業類 -->
+<section class="slide" data-no="5">
+  <div class="slide-header">
+    <div class="slide-title">詞彙快閃 ② 食品與產業類（6 詞）</div>
+    <div class="slide-subtitle">讀完六個詞 → 下一張我們直接玩配對遊戲。</div>
+  </div>
+  <div class="slide-body">
+    <div class="row-6-3x2">
+      <div class="vocab-card"><div class="term">營養密度</div><div class="pinyin">yíngyǎng mìdù</div><div class="def">每口食物裡的營養多不多</div><div class="ex">例：雞蛋的營養密度很高。</div></div>
+      <div class="vocab-card o"><div class="term">乳清蛋白</div><div class="pinyin">rǔqīng dànbái</div><div class="def">牛奶做的高品質蛋白</div><div class="ex">例：健身的人愛喝乳清蛋白。</div></div>
+      <div class="vocab-card t"><div class="term">膳食纖維</div><div class="pinyin">shànshí xiānwéi</div><div class="def">蔬菜裡幫助消化的成分</div><div class="ex">例：多吃蔬菜可補充膳食纖維。</div></div>
+      <div class="vocab-card g"><div class="term">電解質</div><div class="pinyin">diànjiězhì</div><div class="def">鈉鉀鎂等礦物質</div><div class="ex">例：流汗後要補充電解質。</div></div>
+      <div class="vocab-card p"><div class="term">結構性改變</div><div class="pinyin">jiégòuxìng gǎibiàn</div><div class="def">整個系統的長期改變</div><div class="ex">例：這不是流行，是結構性改變。</div></div>
+      <div class="vocab-card gr"><div class="term">品牌卡位</div><div class="pinyin">pǐnpái kǎwèi</div><div class="def">公司搶先佔市場位置</div><div class="ex">例：雀巢正在做品牌卡位。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 6: GAME 1 - 9詞配對 -->
+<section class="slide" data-no="6">
+  <div class="slide-header">
+    <div class="slide-title">🎯 互動：9 詞配對遊戲<span class="qr-pop">📱 學生掃 QR 同步玩</span></div>
+    <div class="slide-subtitle">點左邊一個詞 → 點右邊正確的解釋。配對成功會顯示例句。答題會即時寫入儀表板。</div>
+  </div>
+  <div class="slide-body">
+    <div class="iframe-wrap">
+      <iframe src="game-01-vocab-match.html" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 7: GLP-1 機制 -->
+<section class="slide" data-no="7">
+  <div class="slide-header">
+    <div class="slide-title">GLP-1 是什麼？<span class="audio-cue">🔊 音訊 1:30-2:30</span></div>
+    <div class="slide-subtitle">GLP-1 是腸道分泌的荷爾蒙，有三個任務。</div>
+  </div>
+  <div class="slide-body">
+    <div class="mech-flow">
+      <div class="mech-step card"><div class="where">腸道</div><div class="what">進食後分泌 GLP-1</div></div>
+      <div class="arrow">▶</div>
+      <div class="mech-step card o"><div class="where">血液</div><div class="what">GLP-1 流到全身</div></div>
+      <div class="arrow">▶</div>
+      <div class="mech-step card t"><div class="where">大腦</div><div class="what">收到訊號：飽了</div></div>
+    </div>
+    <div class="mech-tasks">
+      <h4>GLP-1 的三個任務：</h4>
+      <ul>
+        <li>讓人比較不想吃東西（食慾下降）。</li>
+        <li>讓胃排空變慢（吃一點就飽很久）。</li>
+        <li>幫助控制血糖（搭配胰島素一起作用）。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 8: 為什麼吃得更少 -->
+<section class="slide" data-no="8">
+  <div class="slide-header">
+    <div class="slide-title">為什麼吃得更少？三個原因<span class="audio-cue">🔊 音訊 2:30-3:30</span></div>
+    <div class="slide-subtitle">GLP-1 從三個地方影響「想吃的感覺」。</div>
+  </div>
+  <div class="slide-body">
+    <div class="row-3">
+      <div class="card">
+        <div style="font-size:clamp(36px,3.5vw,56px); font-weight:bold; color:var(--orange);">①</div>
+        <div class="head">大腦</div>
+        <div class="body">訊號告訴大腦：「飽了，不用再吃。」</div>
+      </div>
+      <div class="card o">
+        <div style="font-size:clamp(36px,3.5vw,56px); font-weight:bold; color:var(--orange);">②</div>
+        <div class="head">胃部</div>
+        <div class="body">胃排空速度變慢，食物在胃裡停留更久。</div>
+      </div>
+      <div class="card t">
+        <div style="font-size:clamp(36px,3.5vw,56px); font-weight:bold; color:var(--orange);">③</div>
+        <div class="head">口味偏好</div>
+        <div class="body">對高熱量、高糖、油炸食物的興趣下降。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 9: 段落填空 -->
+<section class="slide" data-no="9">
+  <div class="slide-header">
+    <div class="slide-title">段落填空練習（個人寫 2 分鐘）</div>
+    <div class="slide-subtitle">把文章裡的三個數字填回空格。寫完老師對答案。</div>
+  </div>
+  <div class="slide-body">
+    <div class="fill-blanks">
+      <div class="fill-row">
+        <div class="num">①</div>
+        <div class="text">美國約（　　　　）人口曾使用 GLP-1。</div>
+        <div class="answer">提示：百分之十（一成）</div>
+      </div>
+      <div class="fill-row o">
+        <div class="num">②</div>
+        <div class="text">含糖飲料購買量下降約（　　　　）。</div>
+        <div class="answer">提示：負七（−7%）</div>
+      </div>
+      <div class="fill-row">
+        <div class="num">③</div>
+        <div class="text">Morgan Stanley 調查：約（　　　　）使用者停止飲酒。</div>
+        <div class="answer">提示：四分之一（1/4）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 10: 營養密度時代 -->
+<section class="slide" data-no="10">
+  <div class="slide-header">
+    <div class="slide-title">營養密度時代<span class="audio-cue">🔊 音訊 3:30-4:00</span></div>
+    <div class="slide-subtitle">GLP-1 讓人吃得少 → 每一口都要算營養。</div>
+  </div>
+  <div class="slide-body">
+    <div class="compare-flow">
+      <div class="compare-box before">
+        <div class="label">過去：高份量、高刺激</div>
+        <div style="font-size:clamp(60px,8vw,140px);">🍚</div>
+        <div class="heading">大碗白飯<br>含糖飲料</div>
+        <div class="examples">份量大，但營養密度低<br>吃飽容易，吃好難</div>
+      </div>
+      <div class="arrow">▶</div>
+      <div class="compare-box after">
+        <div class="label">現在：小份量、高營養密度</div>
+        <div style="font-size:clamp(60px,8vw,140px);">🥗</div>
+        <div class="heading">雞蛋、優格<br>堅果、蔬菜</div>
+        <div class="examples">份量少，但每口都有營養<br>吃得少，吃得精</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 11: 三大營養 -->
+<section class="slide" data-no="11">
+  <div class="slide-header">
+    <div class="slide-title">三大營養關鍵字<span class="audio-cue">🔊 音訊 4:00-5:00</span></div>
+    <div class="slide-subtitle">GLP-1 友善食品最常見的三個成分。</div>
+  </div>
+  <div class="slide-body">
+    <div class="nutri-grid">
+      <div class="nutri-card o">
+        <div class="icon">🥩</div>
+        <div class="name">乳清蛋白</div>
+        <div class="pinyin">rǔqīng dànbái</div>
+        <div class="desc">讓肌肉維持的高品質蛋白質。</div>
+        <div class="examples-h">食物例子</div>
+        <div class="examples-list">雞蛋、牛奶、優格、起司、雞胸肉</div>
+      </div>
+      <div class="nutri-card t">
+        <div class="icon">🥬</div>
+        <div class="name">膳食纖維</div>
+        <div class="pinyin">shànshí xiānwéi</div>
+        <div class="desc">幫助消化、增加飽足感。</div>
+        <div class="examples-h">食物例子</div>
+        <div class="examples-list">燕麥、地瓜、青菜、水果、豆類</div>
+      </div>
+      <div class="nutri-card b">
+        <div class="icon">⚡</div>
+        <div class="name">電解質</div>
+        <div class="pinyin">diànjiězhì</div>
+        <div class="desc">維持身體水分平衡的礦物質。</div>
+        <div class="examples-h">食物例子</div>
+        <div class="examples-list">香蕉（鉀）、鹽（鈉）、堅果（鎂）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 12: 食品設計邏輯轉變 -->
+<section class="slide" data-no="12">
+  <div class="slide-header">
+    <div class="slide-title">食品設計邏輯轉變：結構性改變<span class="audio-cue">🔊 音訊 5:00-5:30</span></div>
+    <div class="slide-subtitle">從「重口味」變成「重營養」。這不是流行，是品牌卡位。</div>
+  </div>
+  <div class="slide-body">
+    <div class="compare-flow" style="flex:0 0 auto; margin-bottom: 16px;">
+      <div class="compare-box before">
+        <div class="label">過去（X）</div>
+        <div class="heading">高份量<br>高刺激</div>
+        <div class="examples">大杯可樂、雙層漢堡、鹹酥雞</div>
+      </div>
+      <div class="arrow">▶</div>
+      <div class="compare-box after">
+        <div class="label">現在（Y）</div>
+        <div class="heading">小份量<br>高營養密度</div>
+        <div class="examples">蛋白棒、希臘優格、電解質飲</div>
+      </div>
+    </div>
+    <div class="card g" style="flex:1;">
+      <div class="head" style="color:var(--orange);">📝 句型筆記：從 X 轉向 Y</div>
+      <ul>
+        <li>食品設計從「高份量」轉向「高營養密度」。</li>
+        <li>消費邏輯從「吃飽」轉向「吃精」。</li>
+        <li>品牌策略從「賣味道」轉向「賣機能」（這就叫品牌卡位）。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 13: 中場休息 -->
+<section class="slide" data-no="13">
+  <div class="slide-body" style="display:flex; align-items:center; justify-content:center;">
+    <div class="break-card">
+      <h1>☕ 中場休息 5 分鐘</h1>
+      <div class="trivia-label">【冷知識】GLP-1 的全名</div>
+      <div class="trivia">升糖素樣胜肽-1</div>
+      <div class="trivia-en">(Glucagon-Like Peptide-1)</div>
+      <div class="trivia-note">「升糖素」聽起來會升血糖，但 GLP-1 反而是讓血糖下降的「樣（類似的）」蛋白質。</div>
+      <div class="countdown">⏰ 倒數 5:00</div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 14: 三大關鍵數據 -->
+<section class="slide" data-no="14">
+  <div class="slide-header">
+    <div class="slide-title">三大關鍵數據（請念出來！）<span class="audio-cue">🔊 音訊 5:30-6:30</span></div>
+    <div class="slide-subtitle">百分之七、四分之一、百分之十二點二。老師抽 3 人練習。</div>
+  </div>
+  <div class="slide-body">
+    <div class="row-3">
+      <div class="card r">
+        <div class="big-num r">−7%</div>
+        <div class="head" style="text-align:center;">含糖飲料<br>購買量下降</div>
+        <div class="footer-line" style="text-align:center;">念法：百分之七</div>
+      </div>
+      <div class="card o">
+        <div class="big-num">1/4</div>
+        <div class="head" style="text-align:center;">GLP-1 使用者<br>停止飲酒</div>
+        <div class="footer-line" style="text-align:center;">念法：四分之一</div>
+      </div>
+      <div class="card t">
+        <div class="big-num t">12.2%</div>
+        <div class="head" style="text-align:center;">市場 CAGR<br>(2025-2035)</div>
+        <div class="footer-line" style="text-align:center;">念法：百分之十二點二</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:14px; color:var(--muted); font-size:clamp(11px,1vw,14px);">資料來源：Morgan Stanley、Future Market Insights</div>
+  </div>
+</section>
+
+<!-- Slide 15: GAME 2 - 數據判讀 -->
+<section class="slide" data-no="15">
+  <div class="slide-header">
+    <div class="slide-title">📊 互動：三大數據判讀<span class="qr-pop">📱 學生掃 QR 同步玩</span></div>
+    <div class="slide-subtitle">6 題 MCQ，每題答完看說明。</div>
+  </div>
+  <div class="slide-body">
+    <div class="iframe-wrap">
+      <iframe src="game-02-data-mcq.html" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 16: 受惠 vs 受壓 -->
+<section class="slide" data-no="16">
+  <div class="slide-header">
+    <div class="slide-title">受惠 vs 受壓產業<span class="audio-cue">🔊 音訊 6:30-9:00</span></div>
+    <div class="slide-subtitle">雀巢、通用磨坊、Morrisons 是受惠者；含糖飲料與酒精面臨壓力。</div>
+  </div>
+  <div class="slide-body">
+    <div class="vs-grid">
+      <div class="vs win">
+        <h3>✅ 受惠產業</h3>
+        <ul>
+          <li>雀巢（Nestlé）：推出蛋白棒、營養奶昔</li>
+          <li>通用磨坊（General Mills）：高蛋白早餐</li>
+          <li>Morrisons 超市：GLP-1 友善專區</li>
+          <li>蛋白棒、希臘優格廠商</li>
+          <li>乳製品產業（乳清蛋白需求升）</li>
+        </ul>
+      </div>
+      <div class="vs lose">
+        <h3>❌ 受壓產業</h3>
+        <ul>
+          <li>含糖飲料（購買量 −7%）</li>
+          <li>酒精飲料（約 1/4 使用者停飲）</li>
+          <li>高澱粉零食（洋芋片、餅乾）</li>
+          <li>高熱量速食</li>
+          <li>甜點與含糖烘焙</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 17: GAME 3 - 產業分類 -->
+<section class="slide" data-no="17">
+  <div class="slide-header">
+    <div class="slide-title">🏭 互動：受惠 vs 受壓產業分類<span class="qr-pop">📱 學生掃 QR 同步玩</span></div>
+    <div class="slide-subtitle">把 8 個產業／品牌分到正確的欄位。</div>
+  </div>
+  <div class="slide-body">
+    <div class="iframe-wrap">
+      <iframe src="game-03-industry-sort.html" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 18: 句型 ① -->
+<section class="slide" data-no="18">
+  <div class="slide-header">
+    <div class="slide-title">句型操練 ①「不只…還…」</div>
+    <div class="slide-subtitle">兩個訊息一起說。先念文章原句，再自己造一句。</div>
+  </div>
+  <div class="slide-body">
+    <div class="pattern-original">
+      <div class="tag">📖 文章原句</div>
+      <div style="margin-top:8px;">瘦瘦針改變的<span class="hl">【不只】</span>是體重，<span class="hl">【還】</span>重塑了食品與飲料市場。</div>
+    </div>
+    <div class="pattern-example">
+      <div class="tag o">🎯 範例</div>
+      <div style="margin-top:8px;">AI 改變的<strong>【不只】</strong>是工作方式，<strong>【還】</strong>改變了我們的學習方式。</div>
+    </div>
+    <div class="pattern-task">
+      <strong>✍️ 你的任務（兩人一組）</strong>
+      <ul>
+        <li>用「不只…還…」描述一個你關心的趨勢（科技、教育、飲食皆可）。</li>
+        <li>兩人互念一遍，老師抽 3 組分享。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 19: 句型 ②③ -->
+<section class="slide" data-no="19">
+  <div class="slide-header">
+    <div class="slide-title">句型操練 ②「從 X 轉向 Y」 ③「約 X 的 Y」</div>
+    <div class="slide-subtitle">再多兩個高頻句型。各造一句。</div>
+  </div>
+  <div class="slide-body">
+    <div class="row-2">
+      <div class="card o">
+        <div class="head" style="color:var(--orange);">② 從 X 轉向 Y</div>
+        <div class="sub">用法：說一個明顯的方向改變</div>
+        <div style="margin-top:10px; font-size:clamp(13px,1.1vw,16px); color:var(--teal); font-weight:bold;">📖 原句</div>
+        <div style="font-size:clamp(15px,1.4vw,21px); margin:6px 0 16px;">食品設計<strong>從</strong>重口味<strong>轉向</strong>高營養。</div>
+        <div style="margin-top:auto; font-size:clamp(13px,1.1vw,16px); color:var(--orange); font-weight:bold;">🎯 你的造句</div>
+        <div style="background:white; border:1px dashed var(--line); border-radius:8px; padding:14px; margin-top:8px; min-height:60px; color:var(--muted); font-style:italic;">（請寫便利貼貼到黑板）</div>
+      </div>
+      <div class="card t">
+        <div class="head" style="color:var(--teal);">③ 約 X 的 Y</div>
+        <div class="sub">用法：用百分比 / 分數說明比例</div>
+        <div style="margin-top:10px; font-size:clamp(13px,1.1vw,16px); color:var(--teal); font-weight:bold;">📖 原句</div>
+        <div style="font-size:clamp(15px,1.4vw,21px); margin:6px 0 16px;"><strong>約</strong>四分之一<strong>的</strong>使用者停止飲酒。</div>
+        <div style="margin-top:auto; font-size:clamp(13px,1.1vw,16px); color:var(--orange); font-weight:bold;">🎯 你的造句</div>
+        <div style="background:white; border:1px dashed var(--line); border-radius:8px; padding:14px; margin-top:8px; min-height:60px; color:var(--muted); font-style:italic;">（請寫便利貼貼到黑板）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 20: GAME 4 - 句型填空 -->
+<section class="slide" data-no="20">
+  <div class="slide-header">
+    <div class="slide-title">✍️ 互動：句型填空遊戲<span class="qr-pop">📱 學生掃 QR 同步玩</span></div>
+    <div class="slide-subtitle">6 題填空。完成後可直接用在 Edcafe 寫作任務。</div>
+  </div>
+  <div class="slide-body">
+    <div class="iframe-wrap">
+      <iframe src="game-04-pattern-fill.html" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 21: 小組活動 -->
+<section class="slide" data-no="21">
+  <div class="slide-header">
+    <div class="slide-title">小組活動：設計 GLP-1 友善產品</div>
+    <div class="slide-subtitle">4 人一組，15 分鐘。每人抽一張角色卡，按角色發言。</div>
+  </div>
+  <div class="slide-body">
+    <div class="roles-grid">
+      <div class="role-card"><div class="icon">🧪</div><div class="role-name">營養師</div><div class="role-desc">確保產品含 ≥3 個關鍵營養素（乳清蛋白／膳食纖維／電解質）</div></div>
+      <div class="role-card o"><div class="icon">📣</div><div class="role-name">行銷</div><div class="role-desc">想出產品名字、包裝風格、目標客群（GLP-1 使用者）</div></div>
+      <div class="role-card t"><div class="icon">💰</div><div class="role-name">財務</div><div class="role-desc">估算成本與售價，比較市場競品</div></div>
+      <div class="role-card g"><div class="icon">🛒</div><div class="role-name">消費者代表</div><div class="role-desc">從使用者角度提疑慮：好吃嗎？方便嗎？划算嗎？</div></div>
+    </div>
+    <div class="card p" style="margin-top:14px;">
+      <div class="head" style="color:var(--orange);">📋 任務交付物</div>
+      <div class="body">產品名字 + 一句廣告詞 + 至少 5 個本週關鍵詞（用【 】標起來）</div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 22: DASHBOARD - 即時排行 -->
+<section class="slide" data-no="22">
+  <div class="slide-header">
+    <div class="slide-title">📊 即時答題排行（投影給全班看）<span class="qr-pop">老師需先 Google 登入</span></div>
+    <div class="slide-subtitle">全班的進度、9 詞錯誤排行、即時動態都在這頁。發表時投影出來增加遊戲性。</div>
+  </div>
+  <div class="slide-body">
+    <div class="iframe-wrap">
+      <iframe src="dashboard.html" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 23: 寫作任務 -->
+<section class="slide" data-no="23">
+  <div class="slide-header">
+    <div class="slide-title">回家寫作任務（Edcafe）<span class="audio-cue">🔊 音訊 9:00-10:30</span></div>
+    <div class="slide-subtitle">350-450 字短文，下課後 24 小時內上傳。</div>
+  </div>
+  <div class="slide-body">
+    <div class="tasks-grid">
+      <div class="task-card b">
+        <div class="num">①</div>
+        <div class="title">內容理解（80 字）</div>
+        <div class="desc">用自己的話解釋 GLP-1 為什麼讓人吃得少？</div>
+      </div>
+      <div class="task-card o">
+        <div class="num">②</div>
+        <div class="title">科學應用（120 字）</div>
+        <div class="desc">推薦一款高營養密度產品，至少用 3 個關鍵詞。</div>
+      </div>
+      <div class="task-card t">
+        <div class="num">③</div>
+        <div class="title">思辨表達（150 字）</div>
+        <div class="desc">你支持「短期流行」還是「結構性改變」？請給理由。</div>
+      </div>
+    </div>
+    <div class="card g" style="margin-top:14px;">
+      <div class="head" style="color:var(--orange);">📋 格式要求</div>
+      <div class="body">● 350-450 字　● 繁體中文　● 至少 5 個本週關鍵詞並用【 】標起來　● 24 小時內上傳 Edcafe</div>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 24: 九詞回顧 + 下週預告 -->
+<section class="slide" data-no="24">
+  <div class="slide-header">
+    <div class="slide-title">九詞回顧 + 下週預告</div>
+    <div class="slide-subtitle">勾選你今天記住的詞。下週繼續從 GLP-1 友善優格往下談。</div>
+  </div>
+  <div class="slide-body">
+    <div class="row-2">
+      <div class="recap-grid">
+        <div class="recap-cell"><div class="check">☐</div><div class="term">GLP-1</div><div class="self">能用這個詞造一句</div></div>
+        <div class="recap-cell o"><div class="check">☐</div><div class="term">腸泌素</div><div class="self">能用這個詞造一句</div></div>
+        <div class="recap-cell t"><div class="check">☐</div><div class="term">胰島素</div><div class="self">能用這個詞造一句</div></div>
+        <div class="recap-cell g"><div class="check">☐</div><div class="term">營養密度</div><div class="self">能用這個詞造一句</div></div>
+        <div class="recap-cell p"><div class="check">☐</div><div class="term">乳清蛋白</div><div class="self">能用這個詞造一句</div></div>
+        <div class="recap-cell gr"><div class="check">☐</div><div class="term">膳食纖維</div><div class="self">能用這個詞造一句</div></div>
+        <div class="recap-cell r"><div class="check">☐</div><div class="term">電解質</div><div class="self">能用這個詞造一句</div></div>
+        <div class="recap-cell"><div class="check">☐</div><div class="term">結構性改變</div><div class="self">能用這個詞造一句</div></div>
+        <div class="recap-cell o"><div class="check">☐</div><div class="term">品牌卡位</div><div class="self">能用這個詞造一句</div></div>
+      </div>
+      <div style="background:var(--navy); border-radius:14px; padding:24px; color:white; display:flex; flex-direction:column;">
+        <div style="font-size:clamp(13px,1.2vw,17px); color:var(--sand); margin-bottom:10px;">📅 下週主題</div>
+        <div style="font-size:clamp(20px,2.2vw,32px); font-weight:bold; line-height:1.4; margin-bottom:14px;">Lactalis 推出<br>GLP-1 友善優格</div>
+        <div style="height:1px; background:var(--sand); margin:10px 0;"></div>
+        <div style="font-size:clamp(11px,1vw,14px); color:var(--sand); margin-bottom:6px;">延伸閱讀</div>
+        <div style="font-size:clamp(12px,1.1vw,16px); margin-bottom:18px;">Lactalis releases GLP-1 friendly yogurt.pdf</div>
+        <div style="font-size:clamp(11px,1vw,14px); color:var(--sand); margin-bottom:6px;">🎯 預習任務</div>
+        <div style="font-size:clamp(12px,1.1vw,16px);">查 Lactalis 是哪個國家的公司？</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="nav-bar">
+  <button id="prevBtn" title="上一頁 ←">←</button>
+  <span class="progress"><span id="curNo">1</span> / <span id="totNo">24</span></span>
+  <button id="nextBtn" title="下一頁 →">→</button>
+  <button id="fsBtn" title="全螢幕 (F)">⛶</button>
+  <button id="homeBtn" title="回首頁 (Home)">⌂</button>
+  <a href="index.html" style="color:white; text-decoration:none; font-size:12px; margin-left:6px;">遊戲集</a>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+
+function show(i) {
+  if (i < 0 || i >= total) return;
+  slides[cur].classList.remove('active');
+  cur = i;
+  slides[cur].classList.add('active');
+  document.getElementById('curNo').textContent = cur + 1;
+  if (location.hash !== '#' + (cur + 1)) {
+    history.replaceState(null, '', '#' + (cur + 1));
+  }
+}
+
+document.getElementById('totNo').textContent = total;
+document.getElementById('prevBtn').onclick = () => show(cur - 1);
+document.getElementById('nextBtn').onclick = () => show(cur + 1);
+document.getElementById('fsBtn').onclick = () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+};
+document.getElementById('homeBtn').onclick = () => show(0);
+
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+    e.preventDefault();
+    show(cur + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    show(cur - 1);
+  } else if (e.key === 'Home') {
+    show(0);
+  } else if (e.key === 'End') {
+    show(total - 1);
+  } else if (e.key === 'f' || e.key === 'F') {
+    document.getElementById('fsBtn').click();
+  }
+});
+
+window.addEventListener('hashchange', () => {
+  const h = parseInt(location.hash.slice(1));
+  if (!isNaN(h) && h >= 1 && h <= total) show(h - 1);
+});
+
+// Initial routing from hash
+(function() {
+  const h = parseInt(location.hash.slice(1));
+  if (!isNaN(h) && h >= 1 && h <= total) show(h - 1);
+})();
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 60) show(cur + (dx < 0 ? 1 : -1));
+});
+</script>
+</body>
+</html>
