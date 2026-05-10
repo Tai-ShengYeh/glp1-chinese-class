@@ -31,7 +31,8 @@ service cloud.firestore {
     }
 
     // GLP-1 課堂互動小遊戲答題紀錄
-    // 學生端只能 create（不能讀取，避免互看答案）；老師用 Console / Admin SDK 讀取
+    // 學生端：只能 create（避免互看答案）
+    // 老師端：登入指定 email 後可讀（即時儀表板用）
     match /glp1_answers/{doc} {
       allow create: if request.resource.data.student_id is string
                     && request.resource.data.student_id.size() >= 1
@@ -41,7 +42,10 @@ service cloud.firestore {
                     && request.resource.data.game in ['vocab-match', 'data-mcq', 'industry-sort', 'pattern-fill']
                     && request.resource.data.event_type in ['answer', 'session_start', 'session_complete']
                     && request.resource.data.timestamp == request.time;
-      allow read, update, delete: if false;
+      allow read: if request.auth != null
+                  && request.auth.token.email == 'tsyeh0909@gmail.com'
+                  && request.auth.token.email_verified == true;
+      allow update, delete: if false;
     }
 
     // 其餘集合預設禁止

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLP-1 老師端即時儀表板</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  background: #FFFDFC;
+  color: #1F2933;
+  min-height: 100vh;
+  padding: 16px;
+  font-size: 15px;
+}
+.container { max-width: 1280px; margin: 0 auto; }
+header {
+  background: linear-gradient(135deg, #22344A 0%, #3A7D7C 100%);
+  color: white;
+  padding: 22px 26px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+header h1 { font-size: 22px; margin-bottom: 4px; }
+header .meta { font-size: 13px; color: #F5EEE6; }
+header a { color: #F5EEE6; text-decoration: none; font-size: 13px; }
+header a:hover { text-decoration: underline; }
+.btn {
+  background: #D96A3B;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  min-height: 44px;
+}
+.btn:hover { background: #B85530; }
+.btn-secondary { background: #5B6777; }
+.btn-secondary:hover { background: #455260; }
+.login-card {
+  background: white;
+  border: 1px solid #D9E1E8;
+  border-radius: 14px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 480px;
+  margin: 60px auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+.login-card h2 { font-size: 22px; margin-bottom: 12px; }
+.login-card p { color: #5B6777; margin-bottom: 24px; line-height: 1.6; }
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpi {
+  background: white;
+  border: 1px solid #D9E1E8;
+  border-radius: 12px;
+  padding: 20px 16px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.kpi .num {
+  font-size: 38px;
+  font-weight: bold;
+  color: #D96A3B;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.kpi .label { font-size: 14px; color: #5B6777; }
+.row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+.panel {
+  background: white;
+  border: 1px solid #D9E1E8;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.panel h3 {
+  font-size: 17px;
+  margin-bottom: 14px;
+  color: #22344A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel .live-dot {
+  width: 8px; height: 8px; background: #4A7C59; border-radius: 50%;
+  display: inline-block; animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid #ECF3FA;
+}
+th {
+  background: #F5EEE6;
+  color: #22344A;
+  font-weight: bold;
+  font-size: 13px;
+}
+.cell-done {
+  background: #E8F1EA;
+  color: #4A7C59;
+  font-weight: bold;
+}
+.cell-empty { color: #B8C4D0; }
+.bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 60px;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13.5px;
+}
+.bar-row .term { font-weight: bold; color: #22344A; }
+.bar-row .bar {
+  height: 24px;
+  background: #FBEBE7;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.bar-row .bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D96A3B, #C8553D);
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+.bar-row .count {
+  text-align: right;
+  color: #C8553D;
+  font-weight: bold;
+  font-size: 13px;
+}
+.feed { max-height: 360px; overflow-y: auto; }
+.feed-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid #ECF3FA;
+  font-size: 13.5px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.feed-item:hover { background: #FAFCFB; }
+.feed-item .time { color: #5B6777; flex-shrink: 0; min-width: 70px; font-variant-numeric: tabular-nums; }
+.feed-item .who {
+  font-weight: bold;
+  color: #22344A;
+  min-width: 90px;
+  background: #ECF3FA;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.feed-item .what { flex: 1; min-width: 0; }
+.tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; }
+.tag-correct { background: #E8F1EA; color: #4A7C59; }
+.tag-wrong { background: #FBEBE7; color: #C8553D; }
+.tag-complete { background: #ECF3FA; color: #22344A; }
+.toolbar { text-align: right; margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end; }
+.error-msg {
+  background: #FBEBE7;
+  color: #C8553D;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.empty-state { color: #5B6777; font-size: 13px; padding: 12px 0; text-align: center; }
+.section-mini-title {
+  font-size: 12px;
+  color: #5B6777;
+  margin: 12px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>📊 GLP-1 老師端即時儀表板</h1>
+      <div class="meta">班級：114_2_食品營養華語文獻閱讀與寫作 ｜ <span id="userEmail">未登入</span></div>
+    </div>
+    <a href="index.html">← 學生入口</a>
+  </header>
+
+  <div id="loginPanel" class="login-card">
+    <h2>👩‍🏫 老師，請登入</h2>
+    <p>用 Google 帳號（限 <strong>tsyeh0909@gmail.com</strong>）登入後即可看到全班即時答題狀況。</p>
+    <button class="btn" id="signInBtn">用 Google 登入</button>
+    <div id="loginError" class="error-msg" style="display:none; margin-top: 16px;"></div>
+  </div>
+
+  <div id="dashboard" hidden>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="num" id="kpiStudents">0</div><div class="label">登入學生</div></div>
+      <div class="kpi"><div class="num" id="kpiAnswers">0</div><div class="label">答題總數</div></div>
+      <div class="kpi"><div class="num" id="kpiCompletes">0</div><div class="label">遊戲完成次數</div></div>
+      <div class="kpi"><div class="num" id="kpiAccuracy">—</div><div class="label">整體正確率</div></div>
+    </div>
+
+    <div class="row">
+      <section class="panel">
+        <h3>🎯 學生 × 遊戲 完成度</h3>
+        <div style="overflow-x: auto;">
+          <table id="completionTable">
+            <thead>
+              <tr>
+                <th>學號</th>
+                <th>9詞配對</th>
+                <th>數據判讀</th>
+                <th>產業分類</th>
+                <th>句型填空</th>
+              </tr>
+            </thead>
+            <tbody id="completionBody"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel">
+        <h3>📚 9 詞錯誤排行</h3>
+        <div id="vocabErrors"><div class="empty-state">尚無資料。</div></div>
+        <div class="section-mini-title">每題答錯次數（vocab-match）</div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h3><span class="live-dot"></span> 即時動態（最近 20 筆）</h3>
+      <div class="feed" id="liveFeed"><div class="empty-state">等待學生開始作答…</div></div>
+    </section>
+
+    <div class="toolbar">
+      <button class="btn" id="exportBtn">📥 匯出 CSV</button>
+      <button class="btn btn-secondary" id="logoutBtn">登出</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
+import {
+  getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged,
+} from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js';
+import {
+  getFirestore, collection, onSnapshot,
+} from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyCTLhRf7jcJH_AwUzbV4MawkrKNPrIVG5Y',
+  authDomain: 'my-teaching-tools-517a0.firebaseapp.com',
+  projectId: 'my-teaching-tools-517a0',
+  storageBucket: 'my-teaching-tools-517a0.firebasestorage.app',
+  messagingSenderId: '244288457011',
+  appId: '1:244288457011:web:4b3ff8a846a6c50b169646',
+};
+
+const TEACHER_EMAIL = 'tsyeh0909@gmail.com';
+const CLASS_NAME = '114_2_食品營養華語文獻閱讀與寫作';
+const COLLECTION_NAME = 'glp1_answers';
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let unsubscribe = null;
+let allEvents = [];
+
+document.getElementById('signInBtn').onclick = async () => {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ login_hint: TEACHER_EMAIL });
+  const errBox = document.getElementById('loginError');
+  errBox.style.display = 'none';
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    let msg = e.message;
+    if (e.code === 'auth/operation-not-allowed') {
+      msg = '尚未啟用 Google 登入。請在 Firebase Console → Authentication → Sign-in method 啟用 Google provider，再回來試。';
+    } else if (e.code === 'auth/popup-blocked') {
+      msg = '瀏覽器擋了彈窗。請允許彈窗或使用非無痕模式重試。';
+    }
+    errBox.textContent = '登入失敗：' + msg;
+    errBox.style.display = 'block';
+  }
+};
+
+document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, (user) => {
+  const errBox = document.getElementById('loginError');
+  if (user && user.email === TEACHER_EMAIL && user.emailVerified) {
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('loginPanel').style.display = 'none';
+    document.getElementById('dashboard').hidden = false;
+    errBox.style.display = 'none';
+    startListening();
+  } else if (user) {
+    errBox.textContent = `登入帳號 ${user.email} 不是老師（限 ${TEACHER_EMAIL}）。請登出後用正確帳號登入。`;
+    errBox.style.display = 'block';
+  } else {
+    document.getElementById('userEmail').textContent = '未登入';
+    document.getElementById('loginPanel').style.display = 'block';
+    document.getElementById('dashboard').hidden = true;
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  }
+});
+
+function startListening() {
+  if (unsubscribe) unsubscribe();
+  unsubscribe = onSnapshot(collection(db, COLLECTION_NAME), (snap) => {
+    allEvents = [];
+    snap.forEach((doc) => {
+      const d = doc.data();
+      if (d.class_name === CLASS_NAME) {
+        allEvents.push({ id: doc.id, ...d });
+      }
+    });
+    render();
+  }, (error) => {
+    console.error('Firestore subscribe error:', error);
+    const errBox = document.getElementById('loginError');
+    errBox.textContent = '讀取失敗：' + error.message + '。請確認您是 ' + TEACHER_EMAIL + ' 並已驗證 email。';
+    errBox.style.display = 'block';
+  });
+}
+
+function render() {
+  const students = new Set(allEvents.map(e => e.student_id));
+  const answers = allEvents.filter(e => e.event_type === 'answer');
+  const completes = allEvents.filter(e => e.event_type === 'session_complete');
+  const correctCount = answers.filter(e => e.is_correct).length;
+  const accuracy = answers.length > 0
+    ? Math.round((correctCount / answers.length) * 100) + '%'
+    : '—';
+  document.getElementById('kpiStudents').textContent = students.size;
+  document.getElementById('kpiAnswers').textContent = answers.length;
+  document.getElementById('kpiCompletes').textContent = completes.length;
+  document.getElementById('kpiAccuracy').textContent = accuracy;
+
+  renderCompletion(students, completes);
+  renderVocabErrors(answers);
+  renderFeed();
+}
+
+function renderCompletion(students, completes) {
+  const games = ['vocab-match', 'data-mcq', 'industry-sort', 'pattern-fill'];
+  const matrix = {};
+  for (const sid of students) matrix[sid] = {};
+  completes.forEach(c => {
+    matrix[c.student_id] = matrix[c.student_id] || {};
+    const prev = matrix[c.student_id][c.game];
+    if (prev === undefined || (c.final_score || 0) > prev) {
+      matrix[c.student_id][c.game] = c.final_score;
+    }
+  });
+  const tbody = document.getElementById('completionBody');
+  tbody.innerHTML = '';
+  if (students.size === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">尚無學生作答</td></tr>';
+    return;
+  }
+  const sortedSids = [...students].sort();
+  sortedSids.forEach(sid => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><strong>${sid}</strong></td>` +
+      games.map(g => {
+        const score = matrix[sid][g];
+        if (score === undefined) return '<td class="cell-empty">—</td>';
+        return `<td class="cell-done">✓ ${score}</td>`;
+      }).join('');
+    tbody.appendChild(tr);
+  });
+}
+
+function renderVocabErrors(answers) {
+  const vocabAnswers = answers.filter(e => e.game === 'vocab-match' && e.is_correct === false);
+  const errCount = {};
+  vocabAnswers.forEach(e => {
+    if (e.question_id) errCount[e.question_id] = (errCount[e.question_id] || 0) + 1;
+  });
+  const sorted = Object.entries(errCount).sort((a, b) => b[1] - a[1]);
+  const max = sorted.length ? sorted[0][1] : 1;
+  const div = document.getElementById('vocabErrors');
+  if (!sorted.length) {
+    div.innerHTML = '<div class="empty-state">尚無錯誤資料。</div>';
+    return;
+  }
+  div.innerHTML = sorted.map(([term, n]) => `
+    <div class="bar-row">
+      <div class="term">${escapeHtml(term)}</div>
+      <div class="bar"><div class="bar-fill" style="width: ${(n / max * 100).toFixed(0)}%"></div></div>
+      <div class="count">${n} 次</div>
+    </div>
+  `).join('');
+}
+
+function renderFeed() {
+  const sorted = [...allEvents]
+    .filter(e => e.timestamp)
+    .sort((a, b) => (b.timestamp.seconds || 0) - (a.timestamp.seconds || 0))
+    .slice(0, 20);
+  const div = document.getElementById('liveFeed');
+  if (!sorted.length) {
+    div.innerHTML = '<div class="empty-state">等待學生開始作答…</div>';
+    return;
+  }
+  div.innerHTML = sorted.map(e => {
+    const t = e.timestamp.toDate ? e.timestamp.toDate() : new Date();
+    const time = t.toLocaleTimeString('zh-TW', { hour12: false });
+    let what = '';
+    if (e.event_type === 'answer') {
+      const tag = e.is_correct
+        ? '<span class="tag tag-correct">✓對</span>'
+        : '<span class="tag tag-wrong">✗錯</span>';
+      what = `${tag} ${escapeHtml(e.game)} <span style="color:#5B6777">→</span> ${escapeHtml(e.question_id || '')}`;
+    } else if (e.event_type === 'session_complete') {
+      what = `<span class="tag tag-complete">🏁完成</span> ${escapeHtml(e.game)} 得分 <strong>${e.final_score}</strong>`;
+    } else {
+      what = `${escapeHtml(e.event_type)} - ${escapeHtml(e.game)}`;
+    }
+    return `<div class="feed-item">
+      <span class="time">${time}</span>
+      <span class="who">${escapeHtml(e.student_id)}</span>
+      <span class="what">${what}</span>
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  if (s === undefined || s === null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+document.getElementById('exportBtn').onclick = () => {
+  if (!allEvents.length) {
+    alert('沒有資料可匯出。');
+    return;
+  }
+  const headers = ['student_id', 'class_name', 'game', 'event_type', 'question_id', 'is_correct', 'attempts', 'final_score', 'timestamp'];
+  const lines = [headers.join(',')];
+  allEvents.forEach(e => {
+    const t = e.timestamp && e.timestamp.toDate ? e.timestamp.toDate().toISOString() : '';
+    const row = headers.map(h => {
+      const v = h === 'timestamp' ? t : e[h];
+      if (v === undefined || v === null) return '';
+      const s = String(v).replace(/"/g, '""');
+      return /[",\n]/.test(s) ? `"${s}"` : s;
+    });
+    lines.push(row.join(','));
+  });
+  const csv = '﻿' + lines.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `glp1_answers_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+</script>
+</body>
+</html>
