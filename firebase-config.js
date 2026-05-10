@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // === 老師可改 ===
-export const CLASS_NAME = 'A2-B1-2026Spring';
+export const CLASS_NAME = '114_2_食品營養華語文獻閱讀與寫作';
 export const COLLECTION = 'glp1_answers';
 
 // === 學號管理（用 localStorage，跨 4 個遊戲共享） ===
