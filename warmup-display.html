@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>暖身投票即時顯示 ｜ GLP-1</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; }
+body {
+  font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  background: #FFFDFC;
+  color: #1F2933;
+  padding: 16px;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+.container { max-width: 1200px; margin: 0 auto; }
+.layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .layout { grid-template-columns: 1fr; }
+}
+.qr-panel {
+  background: linear-gradient(135deg, #22344A 0%, #3A7D7C 100%);
+  color: white;
+  padding: 18px 16px;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.qr-panel h2 {
+  font-size: clamp(15px, 1.4vw, 19px);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.qr-panel img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  background: white;
+  padding: 8px;
+  border-radius: 8px;
+}
+.qr-panel .url {
+  font-size: 11px;
+  color: #F5EEE6;
+  margin-top: 8px;
+  word-break: break-all;
+}
+.qr-panel .total-votes {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  font-size: clamp(12px, 1vw, 14px);
+}
+.qr-panel .total-votes strong {
+  font-size: clamp(20px, 2vw, 28px);
+  color: #F6F1DE;
+}
+.charts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.chart-card {
+  background: white;
+  border: 1px solid #D9E1E8;
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.chart-card.q1 { border-left: 6px solid #ECF3FA; background-image: linear-gradient(white, white), linear-gradient(90deg, #ECF3FA, white); }
+.chart-card.q2 { border-left: 6px solid #FCEDE5; }
+.chart-card.q3 { border-left: 6px solid #E7F3F1; }
+.chart-card .q-num {
+  display: inline-block;
+  background: #D96A3B;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+.chart-card .q-text {
+  font-size: clamp(15px, 1.4vw, 20px);
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #1F2933;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 80px;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: clamp(13px, 1.1vw, 16px);
+}
+.bar-row .label { font-weight: bold; color: #22344A; }
+.bar-row .bar {
+  height: 28px;
+  background: #F5EEE6;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+.bar-row .bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  min-width: 0;
+}
+.bar-row.fill-1 .bar-fill { background: linear-gradient(90deg, #5B7CB0, #3A6294); }
+.bar-row.fill-2 .bar-fill { background: linear-gradient(90deg, #E08C5A, #D96A3B); }
+.bar-row.fill-3 .bar-fill { background: linear-gradient(90deg, #5BA08C, #3A7D7C); }
+.bar-row .count {
+  text-align: right;
+  font-weight: bold;
+  color: #1F2933;
+  font-variant-numeric: tabular-nums;
+}
+.bar-row .count .pct {
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: #5B6777;
+  font-weight: normal;
+}
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #E8F1EA;
+  color: #4A7C59;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+}
+.live-dot {
+  width: 8px; height: 8px; background: #4A7C59; border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+.empty {
+  text-align: center;
+  color: #B8C4D0;
+  font-size: clamp(12px, 1vw, 14px);
+  padding: 12px 0;
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="layout">
+    <aside class="qr-panel">
+      <h2>📱 掃 QR 投票</h2>
+      <img id="qrImg" alt="掃描投票">
+      <div class="url" id="voteUrl">…</div>
+      <div class="total-votes">
+        <div>已收到</div>
+        <strong id="totalCount">0</strong>
+        <div>票</div>
+      </div>
+    </aside>
+
+    <div class="charts">
+      <div class="chart-card q1" data-q="q1">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <span class="q-num">第 1 題</span>
+          <span class="live-indicator"><span class="live-dot"></span> 即時更新</span>
+        </div>
+        <div class="q-text">你聽過「瘦瘦針」嗎？</div>
+        <div class="bar-row fill-1"><span class="label">是</span><div class="bar"><div class="bar-fill" id="q1-yes" style="width:0%"></div></div><span class="count" id="q1-yes-c">0</span></div>
+        <div class="bar-row fill-2"><span class="label">沒聽過</span><div class="bar"><div class="bar-fill" id="q1-no" style="width:0%"></div></div><span class="count" id="q1-no-c">0</span></div>
+        <div class="bar-row fill-3"><span class="label">聽過但不熟</span><div class="bar"><div class="bar-fill" id="q1-unsure" style="width:0%"></div></div><span class="count" id="q1-unsure-c">0</span></div>
+      </div>
+
+      <div class="chart-card q2" data-q="q2">
+        <span class="q-num">第 2 題</span>
+        <div class="q-text">你多久喝一次含糖飲料？</div>
+        <div class="bar-row fill-2"><span class="label">每天</span><div class="bar"><div class="bar-fill" id="q2-daily" style="width:0%"></div></div><span class="count" id="q2-daily-c">0</span></div>
+        <div class="bar-row fill-2"><span class="label">每週</span><div class="bar"><div class="bar-fill" id="q2-weekly" style="width:0%"></div></div><span class="count" id="q2-weekly-c">0</span></div>
+        <div class="bar-row fill-2"><span class="label">很少</span><div class="bar"><div class="bar-fill" id="q2-rare" style="width:0%"></div></div><span class="count" id="q2-rare-c">0</span></div>
+      </div>
+
+      <div class="chart-card q3" data-q="q3">
+        <span class="q-num">第 3 題</span>
+        <div class="q-text">超市的小份量蛋白棒變多了嗎？</div>
+        <div class="bar-row fill-3"><span class="label">變多</span><div class="bar"><div class="bar-fill" id="q3-yes" style="width:0%"></div></div><span class="count" id="q3-yes-c">0</span></div>
+        <div class="bar-row fill-3"><span class="label">沒變多</span><div class="bar"><div class="bar-fill" id="q3-no" style="width:0%"></div></div><span class="count" id="q3-no-c">0</span></div>
+        <div class="bar-row fill-3"><span class="label">沒注意</span><div class="bar"><div class="bar-fill" id="q3-unsure" style="width:0%"></div></div><span class="count" id="q3-unsure-c">0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
+import {
+  getFirestore, collection, onSnapshot,
+} from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyCTLhRf7jcJH_AwUzbV4MawkrKNPrIVG5Y',
+  authDomain: 'my-teaching-tools-517a0.firebaseapp.com',
+  projectId: 'my-teaching-tools-517a0',
+  storageBucket: 'my-teaching-tools-517a0.firebasestorage.app',
+  messagingSenderId: '244288457011',
+  appId: '1:244288457011:web:4b3ff8a846a6c50b169646',
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const today = new Date();
+const SESSION = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+// QR Code
+const baseUrl = (window.location.href.replace(/[^/]*$/, '')).replace(/\/$/, '');
+const voteUrl = baseUrl + '/warmup-vote.html';
+document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(voteUrl)}&margin=4`;
+document.getElementById('voteUrl').textContent = voteUrl.replace(/^https?:\/\//, '');
+
+// Real-time listener
+onSnapshot(collection(db, 'glp1_warmup_votes'), (snap) => {
+  const counts = {
+    q1: { yes: 0, no: 0, unsure: 0 },
+    q2: { daily: 0, weekly: 0, rare: 0 },
+    q3: { yes: 0, no: 0, unsure: 0 },
+  };
+  let total = 0;
+  snap.forEach(doc => {
+    const d = doc.data();
+    if (d.session !== SESSION) return;
+    if (counts[d.question] && counts[d.question][d.choice] !== undefined) {
+      counts[d.question][d.choice]++;
+      total++;
+    }
+  });
+  document.getElementById('totalCount').textContent = total;
+  ['q1', 'q2', 'q3'].forEach(q => {
+    const cs = counts[q];
+    const max = Math.max(...Object.values(cs), 1);
+    const tot = Object.values(cs).reduce((a, b) => a + b, 0) || 1;
+    Object.entries(cs).forEach(([opt, n]) => {
+      const fill = document.getElementById(`${q}-${opt}`);
+      const cnt = document.getElementById(`${q}-${opt}-c`);
+      if (fill) fill.style.width = `${(n / max * 100).toFixed(0)}%`;
+      if (cnt) {
+        const pct = ((n / tot) * 100).toFixed(0);
+        cnt.innerHTML = `${n} <span class="pct">(${pct}%)</span>`;
+      }
+    });
+  });
+}, (error) => {
+  console.error('Firestore subscribe error:', error);
+});
+</script>
+</body>
+</html>

@@ -30,6 +30,22 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // GLP-1 課前暖身投票（匿名，公開讀寫）
+    // session 用日期區隔不同堂課，rule 限制 schema 與長度
+    match /glp1_warmup_votes/{doc} {
+      allow create: if request.resource.data.keys().hasOnly(['question', 'choice', 'session', 'timestamp'])
+                    && request.resource.data.question in ['q1', 'q2', 'q3']
+                    && request.resource.data.choice is string
+                    && request.resource.data.choice.size() >= 1
+                    && request.resource.data.choice.size() <= 30
+                    && request.resource.data.session is string
+                    && request.resource.data.session.size() >= 1
+                    && request.resource.data.session.size() <= 30
+                    && request.resource.data.timestamp == request.time;
+      allow read: if true;
+      allow update, delete: if false;
+    }
+
     // GLP-1 課堂互動小遊戲答題紀錄
     // 學生端：只能 create（避免互看答案）
     // 老師端：登入指定 email 後可讀（即時儀表板用）
