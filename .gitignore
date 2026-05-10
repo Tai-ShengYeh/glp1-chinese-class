@@ -1,0 +1,16 @@
+# Firebase admin credentials (NEVER commit)
+firebase-admin.json
+*.serviceaccount.json
+service-account-*.json
+
+# Firebase CLI cache
+.firebase/
+
+# Node
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/

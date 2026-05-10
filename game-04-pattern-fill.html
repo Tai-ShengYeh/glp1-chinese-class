@@ -215,7 +215,9 @@ header .subtitle { color: #F5EEE6; font-size: 13px; }
   </div>
 </div>
 
-<script>
+<script type="module">
+import { ensureStudentId, logEvent } from './firebase-config.js';
+
 const QUESTIONS = [
   {
     pattern: '不只…還…',
@@ -360,6 +362,13 @@ function checkQuestion() {
     score++;
     document.getElementById('score').textContent = score;
   }
+  logEvent({
+    game: 'pattern-fill',
+    event_type: 'answer',
+    question_id: 'Q' + (curIdx + 1) + '-' + q.pattern,
+    is_correct: allCorrect,
+    attempts: 1,
+  });
   document.querySelectorAll('.option-chip').forEach(o => o.disabled = true);
   const ex = document.getElementById('explainBox');
   ex.innerHTML = '💡 ' + q.explain;
@@ -383,6 +392,12 @@ function next() {
     document.getElementById('finalComment').textContent = comment;
     document.getElementById('completeMessage').style.display = 'block';
     document.getElementById('completeMessage').scrollIntoView({ behavior: 'smooth' });
+    logEvent({
+      game: 'pattern-fill',
+      event_type: 'session_complete',
+      final_score: score,
+      attempts: QUESTIONS.length,
+    });
   }
 }
 
@@ -404,6 +419,7 @@ function restart() {
   }
 })();
 
+await ensureStudentId();
 renderQuestion();
 </script>
 </body>

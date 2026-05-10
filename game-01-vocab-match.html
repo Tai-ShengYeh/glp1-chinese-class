@@ -217,7 +217,9 @@ header .subtitle { color: #F5EEE6; font-size: 13px; }
 
 <div id="examplePopup" class="example-popup"></div>
 
-<script>
+<script type="module">
+import { ensureStudentId, logEvent } from './firebase-config.js';
+
 const VOCAB = [
   { term: 'GLP-1', pinyin: 'jí ài pī yī', def: '腸道分泌的食慾調節荷爾蒙', example: 'GLP-1 讓人比較不想吃東西。' },
   { term: '腸泌素', pinyin: 'cháng mì sù', def: '從腸道分泌的訊息物質', example: '腸泌素會告訴大腦：飽了。' },
@@ -290,7 +292,15 @@ function tryMatch() {
   if (!selectedTerm || !selectedDef) return;
   attempts++;
   document.getElementById('attempts').textContent = attempts;
-  if (selectedTerm.id === selectedDef.id) {
+  const isCorrect = selectedTerm.id === selectedDef.id;
+  logEvent({
+    game: 'vocab-match',
+    event_type: 'answer',
+    question_id: VOCAB[selectedTerm.id].term,
+    is_correct: isCorrect,
+    attempts,
+  });
+  if (isCorrect) {
     selectedTerm.el.classList.add('matched');
     selectedDef.el.classList.add('matched');
     selectedTerm.el.classList.remove('selected');
@@ -326,6 +336,12 @@ function showComplete() {
   document.getElementById('finalAttempts').textContent = attempts;
   document.getElementById('completeMessage').style.display = 'block';
   document.getElementById('completeMessage').scrollIntoView({ behavior: 'smooth' });
+  logEvent({
+    game: 'vocab-match',
+    event_type: 'session_complete',
+    final_score: VOCAB.length,
+    attempts,
+  });
 }
 
 function restart() {
@@ -349,6 +365,7 @@ function restart() {
   }
 })();
 
+await ensureStudentId();
 render();
 </script>
 </body>

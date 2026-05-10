@@ -193,7 +193,9 @@ header .subtitle { color: #F5EEE6; font-size: 13px; }
   </div>
 </div>
 
-<script>
+<script type="module">
+import { ensureStudentId, logEvent } from './firebase-config.js';
+
 const QUESTIONS = [
   {
     q: '根據文章，含糖飲料的購買量大約下降了多少？',
@@ -265,7 +267,15 @@ function pick(i) {
   const q = QUESTIONS[curIdx];
   const opts = document.querySelectorAll('.option');
   opts.forEach(o => o.disabled = true);
-  if (i === q.correct) {
+  const isCorrect = i === q.correct;
+  logEvent({
+    game: 'data-mcq',
+    event_type: 'answer',
+    question_id: 'Q' + (curIdx + 1),
+    is_correct: isCorrect,
+    attempts: 1,
+  });
+  if (isCorrect) {
     opts[i].classList.add('correct');
     score++;
     document.getElementById('score').textContent = score;
@@ -294,6 +304,12 @@ function next() {
     document.getElementById('finalComment').textContent = comment;
     document.getElementById('completeMessage').style.display = 'block';
     document.getElementById('completeMessage').scrollIntoView({ behavior: 'smooth' });
+    logEvent({
+      game: 'data-mcq',
+      event_type: 'session_complete',
+      final_score: score,
+      attempts: QUESTIONS.length,
+    });
   }
 }
 
@@ -316,6 +332,7 @@ function restart() {
   }
 })();
 
+await ensureStudentId();
 renderQuestion();
 </script>
 </body>

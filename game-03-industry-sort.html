@@ -242,7 +242,9 @@ header .subtitle { color: #F5EEE6; font-size: 13px; }
   </div>
 </div>
 
-<script>
+<script type="module">
+import { ensureStudentId, logEvent } from './firebase-config.js';
+
 const ITEMS = [
   { id: 1, name: '雀巢 Nestlé', correct: 'win', reason: '推出 GLP-1 友善蛋白棒、營養奶昔' },
   { id: 2, name: '通用磨坊', correct: 'win', reason: '高蛋白早餐受惠' },
@@ -351,10 +353,34 @@ function checkAnswers() {
   state.checked = true;
   let correctCount = 0;
   state.win.forEach(id => {
-    if (ITEMS.find(x => x.id === id).correct === 'win') correctCount++;
+    const item = ITEMS.find(x => x.id === id);
+    const isCorrect = item.correct === 'win';
+    if (isCorrect) correctCount++;
+    logEvent({
+      game: 'industry-sort',
+      event_type: 'answer',
+      question_id: item.name,
+      is_correct: isCorrect,
+      attempts: 1,
+    });
   });
   state.lose.forEach(id => {
-    if (ITEMS.find(x => x.id === id).correct === 'lose') correctCount++;
+    const item = ITEMS.find(x => x.id === id);
+    const isCorrect = item.correct === 'lose';
+    if (isCorrect) correctCount++;
+    logEvent({
+      game: 'industry-sort',
+      event_type: 'answer',
+      question_id: item.name,
+      is_correct: isCorrect,
+      attempts: 1,
+    });
+  });
+  logEvent({
+    game: 'industry-sort',
+    event_type: 'session_complete',
+    final_score: correctCount,
+    attempts: ITEMS.length,
   });
   document.getElementById('score').textContent = `${correctCount}/8`;
   document.getElementById('finalScore').textContent = correctCount;
@@ -392,6 +418,7 @@ function restart() { init(); }
   }
 })();
 
+await ensureStudentId();
 init();
 </script>
 </body>

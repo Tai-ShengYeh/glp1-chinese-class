@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 文字雲詞彙：開放讀寫，限制單筆內容大小
+    match /wordcloud_words/{doc} {
+      allow read: if true;
+      allow create: if request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 30
+                    && request.resource.data.question in ['q1', 'q2', 'q3']
+                    && request.resource.data.session is string
+                    && request.resource.data.session.size() <= 40;
+      allow update, delete: if false;
+    }
+
+    // Exit Ticket 回應：開放新增（含長度限制）；課中可由管理員前端讀取
+    match /exit_tickets/{doc} {
+      allow read: if true;
+      allow create: if request.resource.data.q1 is string
+                    && request.resource.data.q1.size() <= 200
+                    && request.resource.data.q2 is string
+                    && request.resource.data.q2.size() <= 500
+                    && request.resource.data.q3 is string
+                    && request.resource.data.q3.size() <= 500
+                    && request.resource.data.seat is string
+                    && request.resource.data.seat.size() <= 10
+                    && request.resource.data.session is string
+                    && request.resource.data.session.size() <= 40;
+      allow update, delete: if false;
+    }
+
+    // GLP-1 課堂互動小遊戲答題紀錄
+    // 學生端只能 create（不能讀取，避免互看答案）；老師用 Console / Admin SDK 讀取
+    match /glp1_answers/{doc} {
+      allow create: if request.resource.data.student_id is string
+                    && request.resource.data.student_id.size() >= 1
+                    && request.resource.data.student_id.size() <= 20
+                    && request.resource.data.class_name is string
+                    && request.resource.data.class_name.size() <= 40
+                    && request.resource.data.game in ['vocab-match', 'data-mcq', 'industry-sort', 'pattern-fill']
+                    && request.resource.data.event_type in ['answer', 'session_start', 'session_complete']
+                    && request.resource.data.timestamp == request.time;
+      allow read, update, delete: if false;
+    }
+
+    // 其餘集合預設禁止
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
