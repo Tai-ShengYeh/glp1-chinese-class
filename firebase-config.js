@@ -22,6 +22,12 @@ const db = getFirestore(app);
 export const CLASS_NAME = '114_2_食品營養華語文獻閱讀與寫作';
 export const COLLECTION = 'glp1_answers';
 
+// === 統一事件 collection（多課程共用 dashboard 讀這個） ===
+const UNIFIED_COLLECTION = 'student_events';
+const COURSE_ID = 'glp1_chinese';
+const CLASS_ID = 'A';
+const CHAPTER = 'glp1';
+
 // === 學號管理（用 localStorage，跨 4 個遊戲共享） ===
 const SID_KEY = 'glp1_student_id';
 
@@ -39,27 +45,42 @@ export function clearStudentId() {
 
 // === 寫一筆事件到 Firestore ===
 // data: { game, event_type, question_id?, is_correct?, attempts?, final_score? }
+// 雙寫策略：
+//   1. glp1_answers（舊集合，向後相容舊 dashboard）
+//   2. student_events（新統一集合，給多課程 dashboard 讀）
 export async function logEvent(data) {
   const studentId = getStudentId();
   if (!studentId) {
     console.warn('No student_id; skipping log');
     return;
   }
+  const common = {
+    student_id: studentId,
+    game: data.game,
+    event_type: data.event_type,
+    question_id: data.question_id || null,
+    is_correct: data.is_correct === undefined ? null : data.is_correct,
+    attempts: data.attempts === undefined ? null : data.attempts,
+    final_score: data.final_score === undefined ? null : data.final_score,
+    user_agent: (navigator.userAgent || '').slice(0, 200),
+    timestamp: serverTimestamp(),
+  };
+  // 1) 舊集合（保留向後相容）
   try {
-    await addDoc(collection(db, COLLECTION), {
-      student_id: studentId,
-      class_name: CLASS_NAME,
-      game: data.game,
-      event_type: data.event_type,
-      question_id: data.question_id || null,
-      is_correct: data.is_correct === undefined ? null : data.is_correct,
-      attempts: data.attempts === undefined ? null : data.attempts,
-      final_score: data.final_score === undefined ? null : data.final_score,
-      user_agent: (navigator.userAgent || '').slice(0, 200),
-      timestamp: serverTimestamp(),
+    await addDoc(collection(db, COLLECTION), { ...common, class_name: CLASS_NAME });
+  } catch (e) {
+    console.error('Firestore write to', COLLECTION, 'failed:', e);
+  }
+  // 2) 新統一集合（給多課程 dashboard）
+  try {
+    await addDoc(collection(db, UNIFIED_COLLECTION), {
+      ...common,
+      course_id: COURSE_ID,
+      class_id: CLASS_ID,
+      chapter: CHAPTER,
     });
   } catch (e) {
-    console.error('Firestore write failed:', e);
+    console.error('Firestore write to', UNIFIED_COLLECTION, 'failed:', e);
   }
 }
 

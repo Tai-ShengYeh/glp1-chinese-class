@@ -2,19 +2,41 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // 文字雲詞彙：開放讀寫，限制單筆內容大小
+    // ===== 新統一事件集合（多課程共用）=====
+    // course_id 白名單：4y_food_analysis、5z_food_analysis、4y_food_chem、glp1_chinese、vn_chinese
+    // chapter: ch6 / ch7 / ch8 ...; game: vocab-match / mcq / sort / fill / decision-tree
+    match /student_events/{doc} {
+      allow create: if request.resource.data.student_id is string
+                    && request.resource.data.student_id.size() >= 1
+                    && request.resource.data.student_id.size() <= 20
+                    && request.resource.data.course_id in [
+                         '4y_food_analysis', '5z_food_analysis',
+                         '4y_food_chem', 'glp1_chinese', 'vn_chinese'
+                       ]
+                    && request.resource.data.class_id is string
+                    && request.resource.data.class_id.size() <= 10
+                    && request.resource.data.chapter is string
+                    && request.resource.data.chapter.size() <= 20
+                    && request.resource.data.game is string
+                    && request.resource.data.game.size() <= 30
+                    && request.resource.data.event_type in ['answer', 'session_complete', 'session_start']
+                    && request.resource.data.timestamp == request.time;
+      allow read: if request.auth != null
+                  && request.auth.token.email == 'tsyeh0909@gmail.com'
+                  && request.auth.token.email_verified == true;
+      allow update, delete: if false;
+    }
+
+    // ===== 文字雲詞彙：開放讀寫，限制單筆內容大小 =====
     match /wordcloud_words/{doc} {
       allow read: if true;
       allow create: if request.resource.data.text is string
                     && request.resource.data.text.size() > 0
-                    && request.resource.data.text.size() <= 30
-                    && request.resource.data.question in ['q1', 'q2', 'q3']
-                    && request.resource.data.session is string
-                    && request.resource.data.session.size() <= 40;
+                    && request.resource.data.text.size() <= 30;
       allow update, delete: if false;
     }
 
-    // Exit Ticket 回應：開放新增（含長度限制）；課中可由管理員前端讀取
+    // ===== Exit Ticket 回應 =====
     match /exit_tickets/{doc} {
       allow read: if true;
       allow create: if request.resource.data.q1 is string
@@ -30,8 +52,7 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // GLP-1 課前暖身投票（匿名，公開讀寫）
-    // session 用日期區隔不同堂課，rule 限制 schema 與長度
+    // ===== GLP-1 課前暖身投票 =====
     match /glp1_warmup_votes/{doc} {
       allow create: if request.resource.data.keys().hasOnly(['question', 'choice', 'session', 'timestamp'])
                     && request.resource.data.question in ['q1', 'q2', 'q3']
@@ -46,9 +67,7 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // GLP-1 課堂互動小遊戲答題紀錄
-    // 學生端：只能 create（避免互看答案）
-    // 老師端：登入指定 email 後可讀（即時儀表板用）
+    // ===== GLP-1 課堂互動小遊戲答題紀錄（舊集合，保留向後相容）=====
     match /glp1_answers/{doc} {
       allow create: if request.resource.data.student_id is string
                     && request.resource.data.student_id.size() >= 1
@@ -64,7 +83,28 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // 其餘集合預設禁止
+    // ===== 食品分析投票（quiz_votes/{pollId}/votes 嵌套）=====
+    match /quiz_votes/{pollId}/votes/{doc} {
+      allow create: if request.resource.data.keys().hasOnly(['choice', 'student_id', 'ts'])
+                    && request.resource.data.choice is string
+                    && request.resource.data.choice.size() <= 30;
+      allow read: if true;
+      allow update, delete: if false;
+    }
+
+    // ===== 食品分析決策樹回應（decision_tree_responses/{session}/responses 嵌套）=====
+    match /decision_tree_responses/{session}/responses/{doc} {
+      allow create: if request.resource.data.student_id is string
+                    && request.resource.data.student_id.size() <= 20
+                    && request.resource.data.method is string
+                    && request.resource.data.method.size() <= 50
+                    && request.resource.data.reason is string
+                    && request.resource.data.reason.size() <= 500;
+      allow read: if true;
+      allow update, delete: if false;
+    }
+
+    // ===== 其餘集合預設禁止 =====
     match /{document=**} {
       allow read, write: if false;
     }
