@@ -23,8 +23,10 @@ export const CLASS_NAME = '114_2_食品營養華語文獻閱讀與寫作';
 export const COLLECTION = 'glp1_answers';
 
 // === 統一事件 collection（多課程共用 dashboard 讀這個） ===
+// GLP-1 是「越南班華語文」這門課其中一週的主題，所以 course_id 用 vn_chinese
+// 之後其他週改 CHAPTER 即可（例如 meal_design / disaster_food / shrimp_processing）
 const UNIFIED_COLLECTION = 'student_events';
-const COURSE_ID = 'glp1_chinese';
+const COURSE_ID = 'vn_chinese';
 const CLASS_ID = 'A';
 const CHAPTER = 'glp1';
 
