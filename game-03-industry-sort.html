@@ -418,6 +418,10 @@ function restart() { init(); }
   }
 })();
 
+window.dropTo = dropTo;
+window.checkAnswers = checkAnswers;
+window.restart = restart;
+
 await ensureStudentId();
 init();
 </script>

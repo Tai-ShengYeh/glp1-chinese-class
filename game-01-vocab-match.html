@@ -365,6 +365,8 @@ function restart() {
   }
 })();
 
+window.restart = restart;
+
 await ensureStudentId();
 render();
 </script>

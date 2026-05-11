@@ -332,6 +332,10 @@ function restart() {
   }
 })();
 
+window.pick = pick;
+window.next = next;
+window.restart = restart;
+
 await ensureStudentId();
 renderQuestion();
 </script>

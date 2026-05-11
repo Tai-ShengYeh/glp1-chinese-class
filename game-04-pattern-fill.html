@@ -419,6 +419,11 @@ function restart() {
   }
 })();
 
+window.pickOption = pickOption;
+window.checkQuestion = checkQuestion;
+window.next = next;
+window.restart = restart;
+
 await ensureStudentId();
 renderQuestion();
 </script>
