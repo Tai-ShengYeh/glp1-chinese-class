@@ -18,6 +18,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// === Supabase 鏡像（並寫一份到 Supabase，給跨課程 SQL 統計分析）===
+// anon key 設計上可公開：Supabase RLS 限制此 key 只能 INSERT student_events，
+// 不能讀/改/刪，即便被人看到也不會洩漏其他學生資料。
+const SUPABASE_URL = 'https://qmldcjkllisvfgegkfsz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbGRjamtsbGlzdmZnZWdrZnN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzExMjM5ODYsImV4cCI6MjA4NjY5OTk4Nn0.Bfj0W7HN_n_vcjGe5502Chamk0YV-de8a0fxF4Nyczk';
+
+function logToSupabase(payload) {
+  fetch(`${SUPABASE_URL}/rest/v1/student_events`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  }).catch((e) => console.warn('[Supabase] mirror failed:', e.message));
+}
+
 // === 老師可改 ===
 export const CLASS_NAME = '114_2_食品營養華語文獻閱讀與寫作';
 export const COLLECTION = 'glp1_answers';
@@ -84,6 +104,21 @@ export async function logEvent(data) {
   } catch (e) {
     console.error('Firestore write to', UNIFIED_COLLECTION, 'failed:', e);
   }
+  // 3) Supabase 鏡像（fire-and-forget，給跨課程 SQL 統計分析）
+  logToSupabase({
+    student_id: studentId,
+    course_id: COURSE_ID,
+    class_id: CLASS_ID,
+    chapter: CHAPTER,
+    game: data.game,
+    event_type: data.event_type,
+    question_id: data.question_id || null,
+    is_correct: data.is_correct === undefined ? null : data.is_correct,
+    attempts: data.attempts === undefined ? null : data.attempts,
+    final_score: data.final_score === undefined ? null : data.final_score,
+    user_agent: (navigator.userAgent || '').slice(0, 200),
+    client_ts: new Date().toISOString(),
+  });
 }
 
 // === 學號輸入彈窗 UI（共用） ===
